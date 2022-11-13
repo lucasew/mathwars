@@ -3,30 +3,45 @@
     console.log(pallete)
     console.log(pallete.length)
     import { onMount } from 'svelte';
-    export let dividerx: number = 64;
-    export let dividery: number = 64;
+    export let tileSize: number = 20; // tamanho de cada item em pixels
     export let intensity: number = 35;
-    export let wind: number = 0.01;
-    export let decay: number = 4;
+    export let wind: number = -0.05; // % da largura
+    export let decay: number = 1.0; // x da altura pra decair tudo
     export let frame_delay: number = 70;
-    let canvasWidth;
-    let canvasHeight;
     /* let intensity = 80; */
-    let refCanvasContainer;
+    export let containerRef;
     let refCanvas;
     let requireRedraw = true;
     let stop = false;
+    let resizeTimeout = undefined
     onMount(() => {
-        const resizeObserver = new ResizeObserver(entries => {
-            const entry = entries.at(0);
-            const { width, height } = entry.contentRect;
-            console.log(entry.contentRect)
-            canvasWidth = width;
-            canvasHeight = height;
-        })
-        resizeObserver.observe(refCanvasContainer);
+        const handleResize = () => {
+            const width = containerRef.offsetWidth;
+            const height = containerRef.offsetHeight;
+            if (resizeTimeout) {
+                clearTimeout(resizeTimeout)
+            }
+            resizeTimeout = setTimeout(() => {
+                refCanvas.width = width || 2;
+                refCanvas.height = height || 2;
+                requireRedraw = true;
+            }, 1000)
+            console.log("resize")
+
+        }
+        const handleWaitElement = () => {
+            setTimeout(() => {
+                if (!containerRef) {
+                    handleWaitElement()
+                } else {
+                    resizeObserver.observe(containerRef);
+                }
+            }, 1)
+        }
+        const resizeObserver = new ResizeObserver(handleResize)
+        handleWaitElement()
         return () => {
-            resizeObserver.unobserve(refCanvasContainer);
+            resizeObserver.unobserve(containerRef);
             stop = true;
         }
     })
@@ -36,18 +51,24 @@
             stop = true;
         }
     })
-    let fireArray = new Uint8Array(0)
+    let fireArray = new Float32Array(0)
     function handle_render() {
+        const canvasWidth = containerRef.offsetWidth;
+        const canvasHeight = containerRef.offsetHeight;
+        const dividerx = Math.floor(canvasWidth / tileSize);
+        const dividery = Math.floor(canvasHeight / tileSize);
+        const blockDecay = decay / dividery;
+        const blockWind = wind / dividerx;
         if (stop) {
             return
         }
-        console.log("render")
         const context = refCanvas.getContext('2d')
-        const gridWidth = Math.floor(canvasWidth/dividerx)
-        const gridHeight = Math.floor(canvasHeight/dividery)
         const cellsx = dividerx + 1
-        const cellsy = dividerx + 1
+        const cellsy = dividery + 1
+        console.log("render", 'decay', blockDecay, "cells", cellsx, cellsy)
         if (requireRedraw) {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = undefined;
             /* context.width = canvasWidth */
             /* context.height = canvasHeight */
             /* refCanvas.width = canvasWidth */
@@ -55,7 +76,7 @@
             const arraySize = cellsx*cellsy;
             console.log("array", arraySize)
             context.fillRect(0, 0, canvasWidth, canvasHeight)
-            fireArray = new Uint8Array(arraySize) // zerofill
+            fireArray = new Float32Array(arraySize) // zerofill
             for (let i = 0; i < cellsx; i++) {
                 /* fireArray[ */
                 fireArray[(cellsy*cellsx - 1) - i] = intensity;
@@ -63,60 +84,46 @@
             requireRedraw=false
         }
         for (let i = (cellsy - 1)* cellsx - 1; i >= 0; i--) {
-            const windOffset = Math.round(Math.random()*wind*cellsx);
-            const sourceIndex = i + windOffset + cellsx;
-            /* const sourceIndex = (i - (Math.round(gridWidth * wind*Math.random()))) % gridWidth; */
-            const res = Math.round(fireArray[sourceIndex] - (Math.random()*decay))
+            const windOffset = Math.random()*blockWind*cellsx;
+            const sourceIndex = Math.floor(i + windOffset + cellsx);
+            const res = fireArray[sourceIndex] - (Math.random()*blockDecay)
             fireArray[i] = res > 0 ? res : 0;
         }
         /* fireArray[0] = 36 */
         /* fireArray[1] = 36 */
         /* fireArray[cellsx] = 36 */
         /* fireArray[cellsx + 2] = 36 */
-        for (let i = 0; i < cellsx; i++) {
+        for (let i = 0; i < cellsy; i++) {
         /* for (let i = 0; i < 3; i++) { */
-            for (let j = 0; j < cellsy; j++) {
+            for (let j = 0; j < cellsx; j++) {
             /* for (let j = 0; j < 3; j++) { */
                 const arrIdx = i*cellsx + j
                 /* console.log(arrIdx) */
-                const colorIdx = fireArray[arrIdx]
+                const colorIdx = Math.round(fireArray[arrIdx])
+                /* console.log(colorIdx) */
                 const color = pallete[colorIdx]
                 /* console.log(colorIdx) */
                 if (color) {
                     /* console.log(color) */
                     context.resetTransform()
                     context.fillStyle = color
-                    const xi = j*gridWidth
-                    const yi = i*gridHeight
-                    const xf = (j+1)*gridWidth
-                    const yf = (i+1)*gridHeight
+                    const xi = j*tileSize
+                    const yi = i*tileSize
+                    const xf = (j+1)*tileSize
+                    const yf = (i+1)*tileSize
                     context.fillRect(xi, yi, xf-xi, yf-yi)
                 }
             }
         }
-        context.fillRect(0, canvasHeight, canvasWidth, -gridHeight)
         // tick
         setTimeout(() => requestAnimationFrame(handle_render), frame_delay)
     }
-    /* $: console.log(canvasWidth, canvasHeight) */
-    $: requestAnimationFrame(() => {
-        refCanvas.width = canvasWidth || 1;
-        refCanvas.height = canvasHeight || 1;
-        requireRedraw = true;
-        console.log("resize")
-        // redraw
-    })
-    /* }) */
 </script>
 
 <style>
-    #canvasContainer {
-        width: 100%;
-        height: 100%;
+    .canvasContainer {
         max-height: 100vh;
     }
 </style>
 
-<div id="canvasContainer" bind:this={refCanvasContainer}>
-    <canvas id="canvasContainer" bind:this={refCanvas}/>
-</div>
+<canvas class="canvasContainer" bind:this={refCanvas}/>
