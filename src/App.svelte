@@ -26,7 +26,7 @@
 
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/home")}>
     {#if currentLocation.pathname !== "/" }
-        <DoomFire containerRef={doomfireContainerRef} decay=2048 wind=2/>
+        <DoomFire containerRef={doomfireContainerRef} decay={2048} wind={2} />
     {/if}
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop />
@@ -40,11 +40,14 @@
             <button class="mathwars-button" on:click={handleJump("/match/multi")}>Jogar em grupo</button>
             <button class="mathwars-button" on:click={handleJump("/match/advanced")}>Avançado</button>
         {/if}
-<!--                <div class="progress-bar-container">
-<ProgressBar progress="10" />
-</div> -->
+
     </section>
 </main>
+<!--
+<div class="progress-bar-container">
+    <ProgressBar progress={10} />
+</div>
+-->
 <style>
     .doomfire-container {
         width: 100vw;
@@ -61,34 +64,10 @@
         justify-content: center;
         min-height: 100vh;
     }
-    p {
-        color: white;
-        text-align: center;
-        font: Cursive;
-    }
     .progress-bar-container {
-        height: 1rem;
-        width: 100%;
-        border: 1px solid white;
-        box-sizing: border-box;
-    }
-    
-    .mathwars-button {
-        background-color: white;
-        width: 100%;
-        border: 0;
-        padding: 0.5rem 0;
-        margin: 0.2rem 0;
-        text-align: center;
-        color: inherit;
-        text-decoration: none;
-        font-size: 1rem;
-        vertical-align: middle;
-        line-height: normal;
-    }
-    .mathwars-page-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+        width: 100vw;
+        position: fixed;
+        top: 0;
+        left: 0;
     }
 </style>
