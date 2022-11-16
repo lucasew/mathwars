@@ -2,43 +2,57 @@
     import DoomFire from './lib/DoomFire.svelte'
     import MathwarsLogo from './lib/MathwarsLogo.svelte'
     import ProgressBar from './lib/ProgressBar.svelte'
-    import locationStore from './stores/location.ts'
+    import locationStore from './stores/location'
+    import isUserInteractedStore from './stores/isUserInteracted'
     let doomfireContainerRef;
     let musicRef;
+
     let currentLocation;
-    locationStore.subscribe((href) => {
-        currentLocation = href
-        if (!musicRef) {
-            return;
-        }
-        if (href.pathname === "/home" || href.pathname.startsWith("/match")) {
-            musicRef.play()
-        } else {
-            musicRef.pause()
-            musicRef.currentTime = 0
-        }
-    })
+    locationStore.subscribe(href => {currentLocation = href; handleMusicStateChange()})
+
+    let isUserInteracted = false;
+    isUserInteractedStore.subscribe((v) => {isUserInteracted = v; handleMusicStateChange()})
+
     console.log(currentLocation);
     function handleJump(route: string) {
         return () => history.pushState({}, '', route)
     }
+    function handleMusicStateChange() {
+        if (!musicRef) {
+            return;
+        }
+        if (isUserInteracted) {
+            if (currentLocation.pathname === "/home" || currentLocation.pathname.startsWith("/match")) {
+                musicRef.play()
+            } else {
+                musicRef.pause()
+                musicRef.currentTime = 0
+            }
+        }
+    }
+    function handleUserInteraction() {
+        $isUserInteractedStore = true
+    }
+    function noop() {}
 </script>
 
-<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/home")}>
+<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/home")} on:keypress={noop}>
     {#if currentLocation.pathname !== "/" }
         <DoomFire containerRef={doomfireContainerRef} decay={2048} wind={2} />
     {/if}
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop />
-<main>
+<main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/home")} />
-        {#if currentLocation.pathname === "/" }
-            <button class="mathwars-button" on:click={handleJump("/home")}>Clique aqui para iniciar</button>
+        {#if !isUserInteracted}
+            <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
         {:else if currentLocation.pathname === "/home"}
             <button class="mathwars-button" on:click={handleJump("/match/solo")}>Jogar sozinho</button>
             <button class="mathwars-button" on:click={handleJump("/match/multi")}>Jogar em grupo</button>
             <button class="mathwars-button" on:click={handleJump("/match/advanced")}>Avançado</button>
+        {:else}
+            <p class="mathwars-text-description">* Rota não encontrada *</p>
         {/if}
 
     </section>
