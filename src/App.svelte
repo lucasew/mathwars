@@ -22,11 +22,11 @@
             return;
         }
         if (isUserInteracted) {
-            if (currentLocation.pathname === "/home" || currentLocation.pathname.startsWith("/match")) {
-                musicRef.play()
-            } else {
+            if (currentLocation.pathname.startsWith("/play")) {
                 musicRef.pause()
                 musicRef.currentTime = 0
+            } else {
+                musicRef.play()
             }
         }
     }
@@ -36,7 +36,7 @@
     function noop() {}
 </script>
 
-<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/home")} on:keypress={noop}>
+<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     {#if currentLocation.pathname !== "/" }
         <DoomFire containerRef={doomfireContainerRef} decay={2048} wind={2} />
     {/if}
@@ -44,10 +44,10 @@
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop />
 <main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
-        <MathwarsLogo on:click={handleJump("/home")} />
+        <MathwarsLogo on:click={handleJump("/")} />
         {#if !isUserInteracted}
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
-        {:else if currentLocation.pathname === "/home"}
+        {:else if currentLocation.pathname === "/"}
             <button class="mathwars-button" on:click={handleJump("/match/solo")}>Jogar sozinho</button>
             <button class="mathwars-button" on:click={handleJump("/match/multi")}>Jogar em grupo</button>
             <button class="mathwars-button" on:click={handleJump("/match/advanced")}>Avançado</button>
