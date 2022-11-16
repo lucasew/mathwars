@@ -37,7 +37,7 @@
 </script>
 
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
-    {#if currentLocation.pathname !== "/" }
+    {#if isUserInteracted }
         <DoomFire containerRef={doomfireContainerRef} decay={2048} wind={2} />
     {/if}
 </div>
