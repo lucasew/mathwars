@@ -107,16 +107,17 @@
     .doomfire-control {
         position: absolute;
         bottom: 0;
-        left: 0;
         display: flex;
         align-items: center;
-        justify-content: space-between;
-        background-color: white;
+        justify-content: center;
+        bottom: 2vh;
         opacity: .3;
+        width: 100vw;
     }
 
     .doomfire-control div {
         max-width: 50vw;
+        background-color: white;
     }
 
     .doomfire-control div input {
