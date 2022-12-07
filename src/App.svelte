@@ -58,7 +58,9 @@
             <button class="mathwars-button" on:click={handleJump("/match/solo")}>Jogar sozinho</button>
             <button class="mathwars-button" on:click={handleJump("/match/multi")}>Jogar em grupo</button>
             <button class="mathwars-button" on:click={handleJump("/match/advanced")}>Avançado</button>
+            <button class="mathwars-button" on:click={handleJump("/doomfire")}>Brincar com fogo</button>
         {:else if currentLocation.pathname === "/doomfire"}
+            <MathwarsLogo on:click={handleJump("/")} />
             <section class="doomfire-control">
                 <div>
                     <p>Vento: </p>
