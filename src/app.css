@@ -38,6 +38,10 @@
     line-height: normal;
     border-radius: 0.2rem;
 }
+
+.mathwars-button, .mathwars-logo {
+    opacity: 0.7;
+}
 .mathwars-page-section {
     display: flex;
     flex-direction: column;
