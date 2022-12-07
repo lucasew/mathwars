@@ -4,12 +4,23 @@
     import locationStore from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import doomfireStore from './stores/doomfire';
+    import { getNtfyTopic } from './lib/ntfy';
+    import { onMount } from 'svelte';
+    import { changeName, idUsuario, usernameStore } from './lib/user';
+
+    let username;
+    usernameStore.subscribe(u => username = u)
+
     let doomfireDecay;
     doomfireStore.decay.subscribe((v) => doomfireDecay = v)
     let doomfireWind;
     doomfireStore.wind.subscribe((v) => doomfireWind = v)
 
+    console.log('idUsuario', idUsuario)
 
+    onMount(() => {
+        // return getNtfyTopic('teste').subscribe(console.log)
+    })
     let doomfireContainerRef;
     let musicRef;
 
@@ -43,24 +54,26 @@
 </script>
 
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
-    {#if isUserInteracted }
+    <!-- {#if isUserInteracted } -->
         <DoomFire containerRef={doomfireContainerRef} decay={doomfireDecay} wind={doomfireWind} />
-    {/if}
+    <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop />
 <main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
+        <MathwarsLogo on:click={handleJump("/")} />
         {#if !isUserInteracted}
-            <MathwarsLogo on:click={handleJump("/")} />
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
         {:else if currentLocation.pathname === "/"}
-            <MathwarsLogo on:click={handleJump("/")} />
-            <button class="mathwars-button" on:click={handleJump("/match/solo")}>Jogar sozinho</button>
-            <button class="mathwars-button" on:click={handleJump("/match/multi")}>Jogar em grupo</button>
-            <button class="mathwars-button" on:click={handleJump("/match/advanced")}>Avançado</button>
+            <button class="mathwars-button" on:click={handleJump("/match/quick")}>Jogo rápido</button>
+            <button class="mathwars-button" on:click={handleJump("/match/setup")}>Customizar partida</button>
+            <button class="mathwars-button" on:click={handleJump("/match/track")}>Acompanhar partida</button>
+            <button class="mathwars-button" on:click={handleJump("/options")}>Opções</button>
+        {:else if currentLocation.pathname === "/options"}
+            <h1 class="mathwars-text-description">Opções</h1>
+            <button class="mathwars-button" on:click={changeName}>Alterar seu nome (atual: '{username}')</button>
             <button class="mathwars-button" on:click={handleJump("/doomfire")}>Brincar com fogo</button>
         {:else if currentLocation.pathname === "/doomfire"}
-            <MathwarsLogo on:click={handleJump("/")} />
             <section class="doomfire-control">
                 <div>
                     <p>Vento: </p>
@@ -72,7 +85,6 @@
                 </div>
             </section>
         {:else}
-            <MathwarsLogo on:click={handleJump("/")} />
             <p class="mathwars-text-description">* Rota não encontrada *</p>
         {/if}
 
