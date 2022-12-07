@@ -24,6 +24,13 @@
     box-sizing: border-box;
 }
 
+.mathwars-panel {
+    background-color: white;
+    width: max(200px, 70vw);
+    border-radius: min(1vw, 1vh);
+    padding: min(1vw, 1vh);
+}
+
 .mathwars-button {
     background-color: white;
     width: 100%;
@@ -41,6 +48,7 @@
 
 .mathwars-button, 
 .mathwars-logo, 
+.mathwars-panel,
 .mathwars-match-options-container {
     opacity: 0.7;
 }

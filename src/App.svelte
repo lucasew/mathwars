@@ -7,6 +7,7 @@
     import { getNtfyTopic } from './lib/ntfy';
     import { onMount } from 'svelte';
     import { changeName, idUsuario, usernameStore } from './lib/user';
+  import Problemgen from './pages/Problemgen.svelte';
 
     let username;
     usernameStore.subscribe(u => username = u)
@@ -73,6 +74,9 @@
             <h1 class="mathwars-text-description">Opções</h1>
             <button class="mathwars-button" on:click={changeName}>Alterar seu nome (atual: '{username}')</button>
             <button class="mathwars-button" on:click={handleJump("/doomfire")}>Brincar com fogo</button>
+            <button class="mathwars-button" on:click={handleJump("/problemgen")}>Gerar problemas</button>
+        {:else if currentLocation.pathname === '/problemgen'}
+            <Problemgen/>
         {:else if currentLocation.pathname === "/doomfire"}
             <section class="doomfire-control">
                 <div>
