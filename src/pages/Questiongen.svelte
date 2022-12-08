@@ -1,6 +1,11 @@
 <script lang="ts">
-  import { shuffleArray } from "../lib/shuffle";
+import { shuffleArray } from "../lib/shuffle";
 import { generateAlternatives, generateProblem, getProblemAnswer, type Problem } from "../lib/problemgen";
+  import { writable } from "svelte/store";
+
+let problemSelectedStore = writable(false)
+let problemSelected;
+problemSelectedStore.subscribe((d) => problemSelected = d)
 
 function genProblem() {
     return generateProblem({
@@ -19,32 +24,43 @@ $: alternatives = shuffleArray([
             answer: alt
         }
     }))
-])
+]).map((val, idx) => {
+    return {
+        ...val,
+        idx
+    }
+})
 
 function handleRightAnswer() {
-    alert("Acertou")
-    problem = genProblem()
+    problemSelectedStore.set(true)
+    setTimeout(() => {
+        problem = genProblem()
+        problemSelectedStore.set(false)
+    }, 200)
 }
 
 function handleWrongAnswer() {
-    alert("Errou")
-    problem = genProblem()
+    problemSelectedStore.set(true)
+    setTimeout(() => {
+        problem = genProblem()
+        problemSelectedStore.set(false)
+    }, 200)
 }
 
 </script>
 
-<div class="mathwars-panel">
+<!-- <div class="mathwars-panel"> -->
 
-<h1>Gerador de problemas</h1>
+<!-- <h1>Gerador de problemas</h1> -->
+<div>
 
-<p>{problem.a} {problem.op} {problem.b}</p>
+<p class="mathwars-button mathwars-problem-title">{problem.a} {problem.op} {problem.b}</p>
 
 {#each alternatives as alternative}
-    {#if alternative.right}
-        <button class="mathwars-button" on:click={handleRightAnswer}>{alternative.answer}</button>
-    {:else}
-        <button class="mathwars-button" on:click={handleWrongAnswer}>{alternative.answer}</button>
-    {/if}
+    <button
+        class="mathwars-button {problemSelected ? alternative.right ? "mathwars-alternative-right" : "mathwars-alternative-wrong" : ""}"
+        on:click={alternative.right ? handleRightAnswer : handleWrongAnswer}
+    >{alternative.answer}</button>
 {/each}
 
 
@@ -54,7 +70,13 @@ function handleWrongAnswer() {
 </div>
 
 <style>
-    .mathwars-panel {
-        text-align: center;
+    .mathwars-problem-title {
+        background-color: gray;
+    }
+    .mathwars-alternative-right {
+        background-color: green;
+    }
+    .mathwars-alternative-wrong {
+        background-color: red;
     }
 </style>
