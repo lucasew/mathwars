@@ -57,7 +57,13 @@
 
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     <!-- {#if isUserInteracted } -->
-        <DoomFire containerRef={doomfireContainerRef} decay={doomfireDecay} wind={doomfireWind} />
+        <DoomFire
+            on:render={() => console.log('doomfire render')}
+            on:resize={() => console.log('doomfire resize')}
+            containerRef={doomfireContainerRef}
+            decay={doomfireDecay}
+            wind={doomfireWind}
+        />
     <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop />
