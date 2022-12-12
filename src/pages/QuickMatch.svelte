@@ -4,11 +4,12 @@
     import { onMount } from 'svelte';
     import { idUsuario, usernameStore } from '../lib/user';
     import { handleJump } from '../stores/location';
+  import type { Match } from 'src/lib/match';
     let playing = false;
     let ops: Set<Problem['op']> = new Set([]);
     let maxNumber: number = 20;
     let opsTxt = '';
-    let respostas = []
+    let respostas: Match['plays'] = []
     let jogadas = 10;
     $: ops = new Set(opsTxt.split('').filter((item) => "+-/*".includes(item))) as Set<Problem['op']>
     $: opsArg = [...ops].length == 0 ? undefined : ops
@@ -53,7 +54,7 @@
             console.log('mais respostas que jogadas')
             const id = idUsuario;
             const name = username;
-            const result = {
+            const result: Record<string, Match> = {
                 [id]: {
                     name,
                     plays: respostas

@@ -9,16 +9,17 @@
     import Problemgen from './pages/Problemgen.svelte';
     import Questiongen from './pages/Questiongen.svelte';
     import QuickMatch from './pages/QuickMatch.svelte';
+    import PlayStatsPage from './pages/PlayStatsPage.svelte';
+    import DoomfireControl from './pages/DoomfireControl.svelte';
 
     let username;
     usernameStore.subscribe(u => username = u)
+    console.log('idUsuario', idUsuario)
 
     let doomfireDecay;
     doomfireStore.decay.subscribe((v) => doomfireDecay = v)
     let doomfireWind;
     doomfireStore.wind.subscribe((v) => doomfireWind = v)
-
-    console.log('idUsuario', idUsuario)
 
     let doomfireContainerRef;
     let musicRef;
@@ -68,9 +69,8 @@
         {#if !isUserInteracted}
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
         {:else if currentLocation.pathname === "/"}
+            <h1 class="mathwars-text-description">Bem vindo/a, {username}</h1>
             <button class="mathwars-button" on:click={handleJump("/play/quick")}>Jogo rápido</button>
-            <button class="mathwars-button" on:click={handleJump("/match/setup")}>Customizar partida</button>
-            <button class="mathwars-button" on:click={handleJump("/match/track")}>Acompanhar partida</button>
             <button class="mathwars-button" on:click={handleJump("/options")}>Opções</button>
         {:else if currentLocation.pathname === "/options"}
             <h1 class="mathwars-text-description">Opções</h1>
@@ -82,19 +82,12 @@
             <QuickMatch/>
         {:else if currentLocation.pathname === '/play/problemgen'}
             <Problemgen/>
+        {:else if currentLocation.pathname === '/play/stats'}
+            <PlayStatsPage/>
         {:else if currentLocation.pathname === '/play/questiongen'}
             <Questiongen/>
         {:else if currentLocation.pathname === "/doomfire"}
-            <section class="doomfire-control">
-                <div>
-                    <p>Vento: </p>
-                    <input type='number' step="0.1" bind:value={doomfireWind}>
-                </div>
-                <div>
-                    <p>Decaimento: </p>
-                    <input type="number" bind:value={doomfireDecay}>
-                </div>
-            </section>
+            <DoomfireControl />
         {:else}
             <p class="mathwars-text-description">* Rota não encontrada *</p>
         {/if}
@@ -128,32 +121,4 @@
         top: 0;
         left: 0;
     }
-
-    .doomfire-control {
-        position: absolute;
-        bottom: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        bottom: 2vh;
-        opacity: .3;
-        width: 100vw;
-    }
-
-    .doomfire-control div {
-        max-width: 50vw;
-        background-color: white;
-    }
-
-    .doomfire-control div input {
-        text-align: center;
-        max-width: 49vw;
-        padding: 0;
-    }
-
-    .doomfire-control div p {
-        text-align: center;
-        margin: 0;
-    }
-
 </style>
