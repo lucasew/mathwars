@@ -1,7 +1,7 @@
 <script lang="ts">
     import DoomFire from './lib/DoomFire.svelte'
     import MathwarsLogo from './lib/MathwarsLogo.svelte'
-    import locationStore from './stores/location'
+    import locationStore, { handleJump } from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import doomfireStore from './stores/doomfire';
     import { onMount } from 'svelte';
@@ -30,9 +30,7 @@
     isUserInteractedStore.subscribe((v) => {isUserInteracted = v; handleMusicStateChange()})
 
     console.log(currentLocation);
-    function handleJump(route: string) {
-        return () => history.pushState({}, '', route)
-    }
+    
     function handleMusicStateChange() {
         if (!musicRef) {
             return;

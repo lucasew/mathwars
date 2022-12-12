@@ -25,6 +25,9 @@ export function createUrlStore() {
 
   return derived(href, ($href) => new URL($href))
 }
+export function handleJump(route: string) {
+    return () => history.pushState({}, '', route)
+}
 
 const locationStore = createUrlStore();
 

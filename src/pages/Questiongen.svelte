@@ -17,8 +17,7 @@ let problem: Problem = genProblem();
 
 <ProblemQuestion
     problem={problem}
-    on:rightAnswer={() => problem = genProblem()}
-    on:wrongAnswer={() => problem = genProblem()}
+    on:answer={() => problem = genProblem()}
 />
 
 <button class="mathwars-button" on:click={() => problem = genProblem()}>Gerar outro problema</button>

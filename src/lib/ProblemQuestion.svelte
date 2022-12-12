@@ -53,7 +53,7 @@
 </p>
 
 {#each alternatives as alternative}
-    <button
+    <p
         class="mathwars-button {problemSelected 
           ? alternative.right 
             ? "mathwars-alternative-right"
@@ -64,7 +64,7 @@
           ? () => handleAnswer(true)
           : () => handleAnswer(false)
         }
-    >{alternative.answer}</button>
+    >{alternative.answer}</p>
 {/each}
 
 <style>
@@ -76,5 +76,10 @@
     }
     .mathwars-alternative-wrong {
         background-color: red;
+    }
+    .mathwars-button {
+        width: 60vw;
+        margin-right: auto;
+        margin-left: auto;
     }
 </style>
