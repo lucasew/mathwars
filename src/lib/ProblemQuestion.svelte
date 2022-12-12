@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher } from "svelte";
+  import { createEventDispatcher, onMount } from "svelte";
   import { writable } from "svelte/store";
   import { generateAlternatives, getProblemAnswer, type Problem } from "./problemgen";
   import { shuffleArray } from "./shuffle";
@@ -8,6 +8,12 @@
 
   let problemSelectedStore = writable(false)
   let problemSelected;
+  let lastAnswer: Date = new Date()
+
+  onMount(() => {
+    lastAnswer = new Date()
+  })
+
   problemSelectedStore.subscribe((d) => problemSelected = d)
 
   const dispatch = createEventDispatcher()
@@ -27,20 +33,18 @@
       }
   })
 
-  function handleRightAnswer() {
+  function handleAnswer(right: boolean) {
       problemSelectedStore.set(true)
+      const submissionTime = new Date();
       setTimeout(() => {
           problemSelectedStore.set(false)
-          dispatch('rightAnswer', {})
+          dispatch('answer', {
+            right,
+            time: submissionTime - lastAnswer
+          })
+          lastAnswer = new Date()
       }, 200)
-  }
 
-  function handleWrongAnswer() {
-      problemSelectedStore.set(true)
-      setTimeout(() => {
-          dispatch('wrongAnswer', {})
-          problemSelectedStore.set(false)
-      }, 200)
   }
 </script>
 
@@ -57,8 +61,8 @@
           : ""
         }"
         on:click={alternative.right
-          ? handleRightAnswer
-          : handleWrongAnswer
+          ? () => handleAnswer(true)
+          : () => handleAnswer(false)
         }
     >{alternative.answer}</button>
 {/each}

@@ -9,6 +9,7 @@
     import { changeName, idUsuario, usernameStore } from './lib/user';
   import Problemgen from './pages/Problemgen.svelte';
   import Questiongen from './pages/Questiongen.svelte';
+  import QuickMatch from './pages/QuickMatch.svelte';
 
     let username;
     usernameStore.subscribe(u => username = u)
@@ -73,7 +74,7 @@
         {#if !isUserInteracted}
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
         {:else if currentLocation.pathname === "/"}
-            <button class="mathwars-button" on:click={handleJump("/match/quick")}>Jogo rápido</button>
+            <button class="mathwars-button" on:click={handleJump("/play/quick")}>Jogo rápido</button>
             <button class="mathwars-button" on:click={handleJump("/match/setup")}>Customizar partida</button>
             <button class="mathwars-button" on:click={handleJump("/match/track")}>Acompanhar partida</button>
             <button class="mathwars-button" on:click={handleJump("/options")}>Opções</button>
@@ -83,6 +84,8 @@
             <button class="mathwars-button" on:click={handleJump("/doomfire")}>Brincar com fogo</button>
             <button class="mathwars-button" on:click={handleJump("/play/problemgen")}>Gerar problemas</button>
             <button class="mathwars-button" on:click={handleJump("/play/questiongen")}>Questões infinitas</button>
+        {:else if currentLocation.pathname === '/play/quick'}
+            <QuickMatch/>
         {:else if currentLocation.pathname === '/play/problemgen'}
             <Problemgen/>
         {:else if currentLocation.pathname === '/play/questiongen'}

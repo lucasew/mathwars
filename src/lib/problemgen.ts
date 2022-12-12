@@ -7,17 +7,22 @@ export type Problem = {
 export function generateProblem(options: {
     max: number,
     negativeProb?: number
-    op?: Problem['op']
+    ops?: Set<Problem['op']>
 }): Problem {
+    let ops: Set<Problem['op']> = new Set(['+', '-', '*', '/'])
+    if (options.ops && [...options.ops].length > 0) {
+        ops = options.ops
+    }
+    let opsList = [...ops]
+    // console.log('ops', opsList)
+
+    const op = opsList[Math.floor(Math.random()*opsList.length)]
+
     let a = 1 + Math.floor(Math.random()*options.max)
     let b = 1 + Math.floor(Math.random()*options.max)
     if (options.negativeProb) {
         if (Math.random() < options.negativeProb) a = -a
         if (Math.random() < options.negativeProb) b = -b
-    }
-    let op = options.op
-    if (!op) {
-        op = ['+', '-', '*', '/'][Math.floor(Math.random()*4)] as Problem['op']
     }
     if (b < 0 && (op === '-' || op === '+')) {
         b *= -1
@@ -41,7 +46,7 @@ export function getProblemAnswer(problem: Problem) {
         case '-':
             return a - b;
         default:
-            throw Error("op inválida");
+            throw Error(`op ${op} inválida`);
     }
 }
 
