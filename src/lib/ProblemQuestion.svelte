@@ -6,15 +6,17 @@
 
   export let problem: Problem = {a: 2, b: 2, op: '+'};
 
-  let problemSelectedStore = writable(false)
-  let problemSelected;
   let lastAnswer: Date = new Date()
-
   onMount(() => {
     lastAnswer = new Date()
   })
 
+  let problemSelectedStore = writable(false)
+  let problemSelected;
   problemSelectedStore.subscribe((d) => problemSelected = d)
+
+  let successRiffRef;
+  let failRiffRef;
 
   const dispatch = createEventDispatcher()
 
@@ -35,6 +37,16 @@
 
   function handleAnswer(right: boolean) {
       problemSelectedStore.set(true)
+      if (right) {
+        successRiffRef.pause()
+        successRiffRef.currentTime = 0
+        successRiffRef.play()
+      } else {
+        failRiffRef.pause()
+        failRiffRef.currentTime = 0
+        failRiffRef.play()
+
+      }
       const submissionTime = new Date();
       setTimeout(() => {
           problemSelectedStore.set(false)
@@ -47,6 +59,9 @@
 
   }
 </script>
+
+<audio bind:this={successRiffRef} id="audio-success" src="/bad-to-the-bone.mp3" />
+<audio bind:this={failRiffRef} id="audio-fail" src="/bad-for-the-ears.mp3" />
 
 <p class="mathwars-button mathwars-problem-title">
   {problem.a} {problem.op} {problem.b}
