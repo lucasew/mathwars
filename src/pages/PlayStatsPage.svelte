@@ -53,6 +53,13 @@ $: {
   console.log(summary)
 }
 
+function handleCopyResultLink() {
+  let url = new URL(window.location.href)
+  url.searchParams.set('state', btoa(JSON.stringify(state)))
+  navigator.clipboard.writeText(url.toString())
+  alert("Copiado!")
+}
+
 </script>
 
 
@@ -65,6 +72,7 @@ $: {
 </div>
 {/each}
 
+<button class='mathwars-button' on:click={handleCopyResultLink}>Copiar link do resultado</button>
 <style>
   .mathwars-stats-container {
     display: flex;
