@@ -38,9 +38,22 @@
         }
         if (isUserInteracted) {
             if (currentLocation.pathname.startsWith("/play")) {
-                musicRef.pause()
-                musicRef.currentTime = 0
+                let i = 0
+                const interval = setInterval(() => {
+                    if (i >= 100) {
+                        clearInterval(interval)
+                        musicRef.pause()
+                        musicRef.currentTime = 0
+                    }
+                    if (musicRef) {
+                        musicRef.volume = (100 - i)*0.01
+                        console.log(musicRef.volume)
+                        i++
+                    }
+
+                }, 10)
             } else {
+                musicRef.volume = 1
                 musicRef.play()
             }
         }
