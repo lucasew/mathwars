@@ -4,12 +4,11 @@
     import locationStore from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import doomfireStore from './stores/doomfire';
-    import { getNtfyTopic } from './lib/ntfy';
     import { onMount } from 'svelte';
     import { changeName, idUsuario, usernameStore } from './lib/user';
-  import Problemgen from './pages/Problemgen.svelte';
-  import Questiongen from './pages/Questiongen.svelte';
-  import QuickMatch from './pages/QuickMatch.svelte';
+    import Problemgen from './pages/Problemgen.svelte';
+    import Questiongen from './pages/Questiongen.svelte';
+    import QuickMatch from './pages/QuickMatch.svelte';
 
     let username;
     usernameStore.subscribe(u => username = u)
@@ -21,9 +20,6 @@
 
     console.log('idUsuario', idUsuario)
 
-    onMount(() => {
-        // return getNtfyTopic('teste').subscribe(console.log)
-    })
     let doomfireContainerRef;
     let musicRef;
 

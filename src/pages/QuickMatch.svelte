@@ -1,13 +1,28 @@
 <script lang="ts">
     import ProblemQuestion from '../lib/ProblemQuestion.svelte';
     import {generateProblem, type Problem} from '../lib/problemgen'
+    import { onMount } from 'svelte';
     let playing = false;
     // let playing = true;
     let ops: Set<Problem['op']> = new Set([]);
     let maxNumber: number = 20;
     let opsTxt = '';
+    let respostas = []
     $: ops = new Set(opsTxt.split('').filter((item) => "+-/*".includes(item))) as Set<Problem['op']>
     $: opsArg = [...ops].length == 0 ? undefined : ops
+
+    onMount(() => {
+        const url = new URL(window.location.href)
+        if (url.searchParams.has('maxNumber')) {
+            const n = parseInt(url.searchParams.get('maxNumber'))
+            if (!isNaN(n)) {
+                maxNumber = n
+            }
+        }
+        if (url.searchParams.has('ops')) {
+            opsTxt = url.searchParams.get('ops').replace(' ', '+')
+        }
+    })
 
     $: console.log(opsArg)
     let problem = nextProblem()
@@ -21,6 +36,8 @@
 
     function handleAnswer(event: CustomEvent<any>) {
         console.log('answer', event.detail)
+        respostas.push({pergunta: problem, resposta: event.detail})
+        console.log(respostas)
         problem = nextProblem()
     }
 </script>

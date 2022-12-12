@@ -27,4 +27,7 @@ export function createUrlStore() {
 }
 
 const locationStore = createUrlStore();
+
+history.replaceState({}, '', window.location.href)
+
 export default locationStore;
