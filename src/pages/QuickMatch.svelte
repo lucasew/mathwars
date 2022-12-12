@@ -3,7 +3,6 @@
     import {generateProblem, type Problem} from '../lib/problemgen'
     import { onMount } from 'svelte';
     let playing = false;
-    // let playing = true;
     let ops: Set<Problem['op']> = new Set([]);
     let maxNumber: number = 20;
     let opsTxt = '';
@@ -40,6 +39,14 @@
         console.log(respostas)
         problem = nextProblem()
     }
+
+    function handleCopyMatchLink() {
+        let url = new URL(window.location.href)
+        url.searchParams.set('maxNumber', String(maxNumber))
+        url.searchParams.set('ops', opsTxt)
+        navigator.clipboard.writeText(url.toString())
+        alert("Copiado!")
+    }
 </script>
 
 <section>
@@ -54,6 +61,7 @@
     <label for="maxNumber">Maior número permitido nas operações: </label>
     <input type="number" name="maxNumber" bind:value={maxNumber}/>
     <input class='mathwars-button' type="submit" value="Inciar partida">
+    <button class='mathwars-button' on:click={handleCopyMatchLink}>Copiar link de partida</button>
 </form>
 {/if}
 
