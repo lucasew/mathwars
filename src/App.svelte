@@ -47,7 +47,6 @@
                     }
                     if (musicRef) {
                         musicRef.volume = (100 - i)*0.01
-                        console.log(musicRef.volume)
                         i++
                     }
 

@@ -87,14 +87,14 @@
 {:else}
 <form>
     <h1>Configurações de partida</h1>
-    <label for="ops">Operações: (escolhidas: {[...ops]})<br>Eescolha entre +,-,/ e *, vazio = todas</label>
+    <label for="ops">Operações: (escolhidas: {[...ops]})<br>Escolha entre +,-,/ e *, vazio = todas</label>
     <input type="text" name="ops" bind:value={opsTxt} />
     <label for="maxNumber">Maior número permitido nas operações: </label>
     <input type="number" name="maxNumber" bind:value={maxNumber}/>
     <label for="plays">Jogadas: </label>
     <input type="number" name="plays" bind:value={jogadas}/>
     <button class='mathwars-button' on:click={() => playing = true}>Inciar partida</button>
-    <button class='mathwars-button' on:click={handleCopyMatchLink}>Copiar link de partida</button>
+    <button class='mathwars-button' on:click={handleCopyMatchLink}>Copiar link de geração de partida</button>
 </form>
 {/if}
 
