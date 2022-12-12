@@ -11,10 +11,8 @@
     import PlayStatsPage from './pages/PlayStatsPage.svelte';
     import DoomfireControl from './pages/DoomfireControl.svelte';
     import OptionsPage from './pages/OptionsPage.svelte';
-  import MainPage from './pages/MainPage.svelte';
+    import MainPage from './pages/MainPage.svelte';
 
-    let username;
-    usernameStore.subscribe(u => username = u)
     console.log('idUsuario', idUsuario)
 
     let doomfireDecay;
@@ -66,6 +64,9 @@
 
 <svelte:head>
     <title>Página inicial - MathWars</title>
+    <link rel="prefetch" href="/intro.m4a" />
+    <link rel="prefetch" href="/bad-to-the-bone.mp3" />
+    <link rel="prefetch" href="/bad-for-the-ears.mp3" />
 </svelte:head>
 
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
