@@ -62,6 +62,9 @@ function handleCopyResultLink() {
 
 </script>
 
+<svelte:head>
+  <title>Resultado da partida - MathWars</title>
+</svelte:head>
 
 {#each summary as item}
 <div class="mathwars-stats-container">

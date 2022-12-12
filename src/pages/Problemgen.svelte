@@ -13,6 +13,10 @@ let problem: Problem = genProblem();
 
 </script>
 
+<svelte:head>
+    <title>Gerador de Problemas - MathWars</title>
+</svelte:head>
+
 <div class="mathwars-panel">
 
 <h1>Gerador de problemas</h1>

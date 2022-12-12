@@ -80,6 +80,10 @@
     }
 </script>
 
+<svelte:head>
+    <title>Jogo rápido - MathWars</title>
+</svelte:head>
+
 <section>
 
 {#if playing}

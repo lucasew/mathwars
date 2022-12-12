@@ -13,8 +13,11 @@ let problem: Problem = genProblem();
 
 </script>
 
-<div>
+<svelte:head>
+    <title>Questionário infinito de teste - MathWars</title>
+</svelte:head>
 
+<div>
 <ProblemQuestion
     problem={problem}
     on:answer={() => problem = genProblem()}

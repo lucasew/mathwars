@@ -4,13 +4,14 @@
     import locationStore, { handleJump } from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import doomfireStore from './stores/doomfire';
-    import { onMount } from 'svelte';
-    import { changeName, idUsuario, usernameStore } from './lib/user';
+    import { idUsuario, usernameStore } from './lib/user';
     import Problemgen from './pages/Problemgen.svelte';
     import Questiongen from './pages/Questiongen.svelte';
     import QuickMatch from './pages/QuickMatch.svelte';
     import PlayStatsPage from './pages/PlayStatsPage.svelte';
     import DoomfireControl from './pages/DoomfireControl.svelte';
+    import OptionsPage from './pages/OptionsPage.svelte';
+  import MainPage from './pages/MainPage.svelte';
 
     let username;
     usernameStore.subscribe(u => username = u)
@@ -63,6 +64,10 @@
     function noop() {}
 </script>
 
+<svelte:head>
+    <title>Página inicial - MathWars</title>
+</svelte:head>
+
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     <!-- {#if isUserInteracted } -->
         <DoomFire
@@ -81,15 +86,9 @@
         {#if !isUserInteracted}
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
         {:else if currentLocation.pathname === "/"}
-            <h1 class="mathwars-text-description">Bem vindo/a, {username}</h1>
-            <button class="mathwars-button" on:click={handleJump("/play/quick")}>Jogo rápido</button>
-            <button class="mathwars-button" on:click={handleJump("/options")}>Opções</button>
+            <MainPage/>
         {:else if currentLocation.pathname === "/options"}
-            <h1 class="mathwars-text-description">Opções</h1>
-            <button class="mathwars-button" on:click={changeName}>Alterar seu nome (atual: '{username}')</button>
-            <button class="mathwars-button" on:click={handleJump("/doomfire")}>Brincar com fogo</button>
-            <button class="mathwars-button" on:click={handleJump("/play/problemgen")}>Gerar problemas</button>
-            <button class="mathwars-button" on:click={handleJump("/play/questiongen")}>Questões infinitas</button>
+            <OptionsPage/>
         {:else if currentLocation.pathname === '/play/quick'}
             <QuickMatch/>
         {:else if currentLocation.pathname === '/play/problemgen'}

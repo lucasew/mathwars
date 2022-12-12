@@ -8,6 +8,9 @@
     $: doomfireStore.wind.set(doomfireWind)
 </script>
 
+<svelte:head>
+    <title>Domínio do fogo - MathWars</title>
+</svelte:head>
 <section class="doomfire-control">
     <div>
         <p>Vento: </p>
