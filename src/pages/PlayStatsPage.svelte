@@ -1,5 +1,6 @@
 <script lang='ts'>
-  import type { Match } from "src/lib/match";
+  import type { Match } from "../lib/match";
+  import { handleJump } from "../stores/location";
   import { onMount } from "svelte";
 
 
@@ -60,6 +61,18 @@ function handleCopyResultLink() {
   alert("Copiado!")
 }
 
+function handleTryAgain() {
+  console.log('tryagain')
+  let url = new URL(window.location.href)
+  const { match: {maxNumber, ops, plays} } = state[Object.keys(state)[0]]
+  url.pathname = '/play/quick'
+  url.searchParams.set('maxNumber', String(maxNumber))
+  url.searchParams.set('ops', String(ops))
+  url.searchParams.set('plays', String(plays))
+  console.log(url.toString())
+  history.replaceState({}, '', url.toString())
+}
+
 </script>
 
 <svelte:head>
@@ -76,6 +89,7 @@ function handleCopyResultLink() {
 {/each}
 
 <button class='mathwars-button' on:click={handleCopyResultLink}>Copiar link do resultado</button>
+<button class='mathwars-button' on:click={handleTryAgain}>Tentar superar</button>
 <style>
   .mathwars-stats-container {
     display: flex;

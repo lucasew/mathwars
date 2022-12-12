@@ -4,7 +4,7 @@
     import { onMount } from 'svelte';
     import { idUsuario, usernameStore } from '../lib/user';
     import { handleJump } from '../stores/location';
-  import type { Match } from 'src/lib/match';
+    import type { Match } from 'src/lib/match';
     let playing = false;
     let ops: Set<Problem['op']> = new Set([]);
     let maxNumber: number = 20;
@@ -57,7 +57,12 @@
             const result: Record<string, Match> = {
                 [id]: {
                     name,
-                    plays: respostas
+                    plays: respostas,
+                    match: {
+                        maxNumber,
+                        ops: opsTxt,
+                        plays: jogadas
+                    }
                 }
             }
             const resultJSON = JSON.stringify(result)

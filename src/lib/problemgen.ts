@@ -9,11 +9,12 @@ export function generateProblem(options: {
     negativeProb?: number
     ops?: Set<Problem['op']>
 }): Problem {
-    let ops: Set<Problem['op']> = new Set(['+', '-', '*', '/'])
+    let usedOps: Set<Problem['op']> = new Set(['+', '-', '*', '/'])
     if (options.ops && [...options.ops].length > 0) {
-        ops = options.ops
+        console.log('usando options.ops')
+        usedOps = options.ops
     }
-    let opsList = [...ops]
+    let opsList = [...usedOps]
     // console.log('ops', opsList)
 
     const op = opsList[Math.floor(Math.random()*opsList.length)]

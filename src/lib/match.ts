@@ -8,5 +8,10 @@ export type Match = {
             right: boolean
             time: number
         }
-    }>
+    }>,
+    match: {
+        maxNumber: number,
+        ops: string,
+        plays: number 
+    }
 }
