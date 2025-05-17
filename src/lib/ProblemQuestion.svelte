@@ -60,8 +60,8 @@
   }
 </script>
 
-<audio bind:this={successRiffRef} id="audio-success" src="/bad-to-the-bone.mp3" />
-<audio bind:this={failRiffRef} id="audio-fail" src="/bad-for-the-ears.mp3" />
+<audio bind:this={successRiffRef} id="audio-success" src="/bad-to-the-bone.mp3"></audio>
+<audio bind:this={failRiffRef} id="audio-fail" src="/bad-for-the-ears.mp3"></audio>
 
 <p class="mathwars-button mathwars-problem-title">
   {problem.a} {problem.op} {problem.b}

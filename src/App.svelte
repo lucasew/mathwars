@@ -80,7 +80,7 @@
         />
     <!-- {/if} -->
 </div>
-<audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop />
+<audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
 <main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />

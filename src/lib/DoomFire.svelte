@@ -137,4 +137,4 @@
     }
 </style>
 
-<canvas class="canvasContainer" bind:this={refCanvas}/>
+<canvas class="canvasContainer" bind:this={refCanvas}></canvas>
