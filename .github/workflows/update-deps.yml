@@ -17,10 +17,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
-      - name: Regenerate package-lock.json
-        run: |
-          rm package-lock.json
-          npm install
+      - name: Setup Mise
+      - uses: jdx/mise-action@v3
+
+      - name: Install
+        run: bun install
 
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
