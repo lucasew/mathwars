@@ -1,0 +1,45 @@
+# trunk-ignore-all(yamllint/quoted-strings)
+name: Autorelease
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  autorelease:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Mise
+        uses: jdx/mise-action@v3
+
+      - name: Install Dependencies
+        run: mise run install
+
+      - name: Codegen
+        run: mise run codegen
+
+      - name: Create PR if Codegen Changed Files
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update generated code"
+          title: "chore: update generated code"
+          body: "This PR updates generated code."
+          branch: "chore/codegen-update"
+          base: "${{ github.head_ref || github.ref_name }}"
+
+      - name: CI
+        run: mise run ci

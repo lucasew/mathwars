@@ -10,9 +10,13 @@ onMount(() => {
     if (!url.searchParams.has('state')) {
         alert('Esta página não foi feita para ser usada desta forma. Indo para a página inicial...')
         history.pushState({}, '', '/')
+        return;
     }
-    state = JSON.parse(atob(url.searchParams.get('state')))
-    console.log(state)
+    const stateParam = url.searchParams.get('state');
+    if (stateParam) {
+        state = JSON.parse(atob(stateParam))
+        console.log(state)
+    }
 })
 
 let summary: Array<{

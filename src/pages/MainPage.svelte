@@ -2,7 +2,7 @@
   import { usernameStore } from "../lib/user";
   import { handleJump } from "../stores/location";
 
-  let username;
+  let username: string = '';
   usernameStore.subscribe(u => username = u)
 </script>
 <svelte:head>

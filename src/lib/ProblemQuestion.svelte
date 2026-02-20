@@ -12,11 +12,11 @@
   })
 
   let problemSelectedStore = writable(false)
-  let problemSelected;
+  let problemSelected: boolean = false;
   problemSelectedStore.subscribe((d) => problemSelected = d)
 
-  let successRiffRef;
-  let failRiffRef;
+  let successRiffRef: HTMLAudioElement;
+  let failRiffRef: HTMLAudioElement;
 
   const dispatch = createEventDispatcher()
 
@@ -28,7 +28,7 @@
               answer: alt
           }
       }))
-  ]).map((val, idx) => {
+  ]).map((val: {right: boolean, answer: number}, idx: number) => {
       return {
           ...val,
           idx
@@ -52,7 +52,7 @@
           problemSelectedStore.set(false)
           dispatch('answer', {
             right,
-            time: submissionTime - lastAnswer
+            time: submissionTime.getTime() - lastAnswer.getTime()
           })
           lastAnswer = new Date()
       }, 200)

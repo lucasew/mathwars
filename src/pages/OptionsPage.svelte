@@ -3,7 +3,7 @@
   import { changeName, usernameStore } from "../lib/user";
 
 
-    let username;
+    let username: string = '';
     usernameStore.subscribe(u => username = u)
 
 </script>
