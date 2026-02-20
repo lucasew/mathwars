@@ -1,2 +1,14 @@
 [tools]
-bun = "latest"
+bun = "1.2.14"
+trunk = "1.3.4"
+
+[tasks]
+"install:deps" = "bun install"
+install = { depends = ["install:*"] }
+lint = "trunk check"
+fmt = "trunk fmt"
+"test:check" = "bun run check"
+test = { depends = ["test:*"] }
+"codegen:noop" = "echo \"No codegen needed\""
+codegen = { depends = ["codegen:*"] }
+ci = { depends = ["lint", "test"] }

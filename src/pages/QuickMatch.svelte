@@ -14,22 +14,22 @@
     $: ops = new Set(opsTxt.split('').filter((item) => "+-/*".includes(item))) as Set<Problem['op']>
     $: opsArg = [...ops].length == 0 ? undefined : ops
 
-    let username;
+    let username: string = '';
     usernameStore.subscribe((u) => username = u)
 
     onMount(() => {
         const url = new URL(window.location.href)
         if (url.searchParams.has('maxNumber')) {
-            const n = parseInt(url.searchParams.get('maxNumber'))
+            const n = parseInt(url.searchParams.get('maxNumber')!)
             if (!isNaN(n)) {
                 maxNumber = n
             }
         }
         if (url.searchParams.has('ops')) {
-            opsTxt = url.searchParams.get('ops').replace(' ', '+')
+            opsTxt = url.searchParams.get('ops')!.replace(' ', '+')
         }
         if (url.searchParams.has('plays')) {
-            const n = parseInt(url.searchParams.get('plays'))
+            const n = parseInt(url.searchParams.get('plays')!)
             if (!isNaN(n)) {
                 jogadas = n
             }
@@ -74,7 +74,7 @@
         problem = nextProblem()
     }
 
-    function handleCopyMatchLink(e) {
+    function handleCopyMatchLink(e: Event) {
         e.preventDefault()
         let url = new URL(window.location.href)
         url.searchParams.set('maxNumber', String(maxNumber))

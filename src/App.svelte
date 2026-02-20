@@ -15,15 +15,15 @@
 
     console.log('idUsuario', idUsuario)
 
-    let doomfireDecay;
+    let doomfireDecay: number = 256;
     doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
+    let doomfireWind: number = 1.5;
     doomfireStore.wind.subscribe((v) => doomfireWind = v)
 
-    let doomfireContainerRef;
-    let musicRef;
+    let doomfireContainerRef: HTMLDivElement;
+    let musicRef: HTMLAudioElement;
 
-    let currentLocation;
+    let currentLocation: URL = new URL(window.location.href);
     locationStore.subscribe(href => {currentLocation = href; handleMusicStateChange()})
 
     let isUserInteracted = false;
@@ -81,7 +81,7 @@
     <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
-<main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
+<main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />
         {#if !isUserInteracted}
