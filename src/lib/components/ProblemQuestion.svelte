@@ -1,8 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
   import { writable } from "svelte/store";
-  import { generateAlternatives, getProblemAnswer, type Problem } from "./problemgen";
-  import { shuffleArray } from "./shuffle";
+  import { generateAlternatives, getProblemAnswer, type Problem } from "../game/problemgen";
+  import { shuffleArray } from "../game/shuffle";
 
   export let problem: Problem = {a: 2, b: 2, op: '+'};
 

@@ -1,10 +1,10 @@
 <script lang="ts">
-    import DoomFire from './lib/DoomFire.svelte'
-    import MathwarsLogo from './lib/MathwarsLogo.svelte'
+    import DoomFire from './lib/components/DoomFire.svelte'
+    import MathwarsLogo from './lib/components/MathwarsLogo.svelte'
     import locationStore, { handleJump } from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import doomfireStore from './stores/doomfire';
-    import { idUsuario, usernameStore } from './lib/user';
+    import { idUsuario, usernameStore } from './lib/game/user';
     import Problemgen from './pages/Problemgen.svelte';
     import Questiongen from './pages/Questiongen.svelte';
     import QuickMatch from './pages/QuickMatch.svelte';
@@ -12,8 +12,6 @@
     import DoomfireControl from './pages/DoomfireControl.svelte';
     import OptionsPage from './pages/OptionsPage.svelte';
     import MainPage from './pages/MainPage.svelte';
-
-    console.log('idUsuario', idUsuario)
 
     let doomfireDecay;
     doomfireStore.decay.subscribe((v) => doomfireDecay = v)
@@ -29,8 +27,6 @@
     let isUserInteracted = false;
     isUserInteractedStore.subscribe((v) => {isUserInteracted = v; handleMusicStateChange()})
 
-    console.log(currentLocation);
-    
     function handleMusicStateChange() {
         if (!musicRef) {
             return;
@@ -72,8 +68,6 @@
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     <!-- {#if isUserInteracted } -->
         <DoomFire
-            on:render={() => console.log('doomfire render')}
-            on:resize={() => console.log('doomfire resize')}
             containerRef={doomfireContainerRef}
             decay={doomfireDecay}
             wind={doomfireWind}
@@ -106,11 +100,6 @@
 
     </section>
 </main>
-<!--
-<div class="progress-bar-container">
-    <ProgressBar progress={10} />
-</div>
--->
 <style>
     .doomfire-container {
         width: 100vw;
@@ -126,11 +115,5 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-    }
-    .progress-bar-container {
-        width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
     }
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { generateAlternatives, generateProblem, getProblemAnswer, type Problem } from "../lib/problemgen";
+import { generateAlternatives, generateProblem, getProblemAnswer, type Problem } from "../lib/game/problemgen";
 
 function genProblem() {
     return generateProblem({
