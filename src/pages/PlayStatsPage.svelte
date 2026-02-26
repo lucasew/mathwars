@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import type { Match } from "../lib/match";
+  import type { Match } from "../lib/game/match";
   import { handleJump } from "../stores/location";
   import { onMount } from "svelte";
 
@@ -12,7 +12,6 @@ onMount(() => {
         history.pushState({}, '', '/')
     }
     state = JSON.parse(atob(url.searchParams.get('state')))
-    console.log(state)
 })
 
 let summary: Array<{
@@ -38,9 +37,7 @@ $: {
         seguido = 0
       }
       const deltaPoints = Math.floor(Math.abs((10/Math.log10(play.resposta.time/1000))*seguido)*10)
-      console.log(deltaPoints)
       pontos += deltaPoints
-      console.log(play)
     }
     summary.push({
       name,
@@ -51,7 +48,6 @@ $: {
     })
   })
   summary = summary.sort((x, y) => x.score - y.score)
-  console.log(summary)
 }
 
 function handleCopyResultLink() {
@@ -62,14 +58,12 @@ function handleCopyResultLink() {
 }
 
 function handleTryAgain() {
-  console.log('tryagain')
   let url = new URL(window.location.href)
   const { match: {maxNumber, ops, plays} } = state[Object.keys(state)[0]]
   url.pathname = '/play/quick'
   url.searchParams.set('maxNumber', String(maxNumber))
   url.searchParams.set('ops', String(ops))
   url.searchParams.set('plays', String(plays))
-  console.log(url.toString())
   history.replaceState({}, '', url.toString())
 }
 

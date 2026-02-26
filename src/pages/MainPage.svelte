@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { usernameStore } from "../lib/user";
+  import { usernameStore } from "../lib/game/user";
   import { handleJump } from "../stores/location";
 
   let username;

@@ -1,10 +1,10 @@
 <script lang="ts">
-    import ProblemQuestion from '../lib/ProblemQuestion.svelte';
-    import {generateProblem, type Problem} from '../lib/problemgen'
+    import ProblemQuestion from '../lib/components/ProblemQuestion.svelte';
+    import {generateProblem, type Problem} from '../lib/game/problemgen'
     import { onMount } from 'svelte';
-    import { idUsuario, usernameStore } from '../lib/user';
+    import { idUsuario, usernameStore } from '../lib/game/user';
     import { handleJump } from '../stores/location';
-    import type { Match } from 'src/lib/match';
+    import type { Match } from '../lib/game/match';
     let playing = false;
     let ops: Set<Problem['op']> = new Set([]);
     let maxNumber: number = 20;
@@ -36,7 +36,6 @@
         }
     })
 
-    $: console.log(opsArg)
     let problem = nextProblem()
 
     function nextProblem(): Problem {
@@ -47,11 +46,8 @@
     }
 
     function handleAnswer(event: CustomEvent<any>) {
-        console.log('answer', event.detail)
         respostas.push({pergunta: problem, resposta: event.detail})
-        console.log(respostas.length)
         if (respostas.length >= jogadas) {
-            console.log('mais respostas que jogadas')
             const id = idUsuario;
             const name = username;
             const result: Record<string, Match> = {
@@ -66,11 +62,9 @@
                 }
             }
             const resultJSON = JSON.stringify(result)
-            console.log(resultJSON)
             handleJump(`/play/stats?state=${btoa(resultJSON)}`)()
         } 
 
-        console.log(respostas)
         problem = nextProblem()
     }
 

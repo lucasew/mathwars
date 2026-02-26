@@ -1,6 +1,6 @@
 <script lang='ts'>
   import { handleJump } from "../stores/location";
-  import { changeName, usernameStore } from "../lib/user";
+  import { changeName, usernameStore } from "../lib/game/user";
 
 
     let username;

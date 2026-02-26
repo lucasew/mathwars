@@ -1,6 +1,6 @@
 <script lang="ts">
-import { generateProblem, type Problem } from "../lib/problemgen";
-import ProblemQuestion from "../lib/ProblemQuestion.svelte";
+import { generateProblem, type Problem } from "../lib/game/problemgen";
+import ProblemQuestion from "../lib/components/ProblemQuestion.svelte";
 
 function genProblem() {
     return generateProblem({
