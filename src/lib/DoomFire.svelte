@@ -7,24 +7,27 @@
     export let decay: number = 1.0; // x da altura pra decair tudo
     export let frame_delay: number = 70;
     /* let intensity = 80; */
-    export let containerRef;
-    let refCanvas;
+    export let containerRef: HTMLElement | null = null;
+    let refCanvas: HTMLCanvasElement | null = null;
     let requireRedraw = true;
     let stop = false;
-    let resizeTimeout = undefined
+    let resizeTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
     const dispatch = createEventDispatcher()
 
     onMount(() => {
         const handleResize = () => {
+            if (!containerRef || !refCanvas) return;
             const width = containerRef.offsetWidth;
             const height = containerRef.offsetHeight;
             if (resizeTimeout) {
                 clearTimeout(resizeTimeout)
             }
             resizeTimeout = setTimeout(() => {
-                refCanvas.width = width || 2;
-                refCanvas.height = height || 2;
+                if (refCanvas) {
+                    refCanvas.width = width || 2;
+                    refCanvas.height = height || 2;
+                }
                 requireRedraw = true;
                 dispatch('resize', {
                     width,
@@ -44,7 +47,7 @@
         const resizeObserver = new ResizeObserver(handleResize)
         handleWaitElement()
         return () => {
-            resizeObserver.unobserve(containerRef);
+            if (containerRef) resizeObserver.unobserve(containerRef);
             stop = true;
         }
     })
@@ -56,6 +59,10 @@
     })
     let fireArray = new Float32Array(0)
     function handle_render() {
+        if (!containerRef || !refCanvas) {
+            if (!stop) setTimeout(() => requestAnimationFrame(handle_render), frame_delay);
+            return;
+        }
         const canvasWidth = containerRef.offsetWidth;
         const canvasHeight = containerRef.offsetHeight;
         const dividerx = Math.floor(canvasWidth / tileSize);
@@ -74,6 +81,7 @@
             blockWind
         })
         const context = refCanvas.getContext('2d')
+        if (!context) return;
         const cellsx = dividerx + 1
         const cellsy = dividery + 1
         // console.log("render", 'decay', blockDecay, "cells", cellsx, cellsy)

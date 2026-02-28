@@ -6,17 +6,15 @@
 
   export let problem: Problem = {a: 2, b: 2, op: '+'};
 
-  let lastAnswer: Date = new Date()
+  let lastAnswer: number = Date.now()
   onMount(() => {
-    lastAnswer = new Date()
+    lastAnswer = Date.now()
   })
 
-  let problemSelectedStore = writable(false)
-  let problemSelected;
-  problemSelectedStore.subscribe((d) => problemSelected = d)
+  let problemSelected = false;
 
-  let successRiffRef;
-  let failRiffRef;
+  let successRiffRef: HTMLAudioElement | null = null;
+  let failRiffRef: HTMLAudioElement | null = null;
 
   const dispatch = createEventDispatcher()
 
@@ -28,7 +26,7 @@
               answer: alt
           }
       }))
-  ]).map((val, idx) => {
+  ]).map((val: any, idx: number) => {
       return {
           ...val,
           idx
@@ -36,25 +34,28 @@
   })
 
   function handleAnswer(right: boolean) {
-      problemSelectedStore.set(true)
+      problemSelected = true;
       if (right) {
-        successRiffRef.pause()
-        successRiffRef.currentTime = 0
-        successRiffRef.play()
+        if (successRiffRef) {
+          successRiffRef.pause()
+          successRiffRef.currentTime = 0
+          successRiffRef.play()
+        }
       } else {
-        failRiffRef.pause()
-        failRiffRef.currentTime = 0
-        failRiffRef.play()
-
+        if (failRiffRef) {
+          failRiffRef.pause()
+          failRiffRef.currentTime = 0
+          failRiffRef.play()
+        }
       }
-      const submissionTime = new Date();
+      const submissionTime = Date.now();
       setTimeout(() => {
-          problemSelectedStore.set(false)
+          problemSelected = false;
           dispatch('answer', {
             right,
             time: submissionTime - lastAnswer
           })
-          lastAnswer = new Date()
+          lastAnswer = Date.now()
       }, 200)
 
   }
@@ -68,6 +69,8 @@
 </p>
 
 {#each alternatives as alternative}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <p
         class="mathwars-button {problemSelected 
           ? alternative.right 

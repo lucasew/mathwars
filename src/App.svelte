@@ -4,6 +4,7 @@
     import locationStore, { handleJump } from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import doomfireStore from './stores/doomfire';
+    const { wind, decay } = doomfireStore;
     import { idUsuario, usernameStore } from './lib/user';
     import Problemgen from './pages/Problemgen.svelte';
     import Questiongen from './pages/Questiongen.svelte';
@@ -15,22 +16,19 @@
 
     console.log('idUsuario', idUsuario)
 
-    let doomfireDecay;
-    doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
-    doomfireStore.wind.subscribe((v) => doomfireWind = v)
+    let doomfireContainerRef: HTMLElement | null = null;
+    let musicRef: HTMLAudioElement | null = null;
 
-    let doomfireContainerRef;
-    let musicRef;
+    $: currentLocation = $locationStore;
+    $: isUserInteracted = $isUserInteractedStore;
 
-    let currentLocation;
-    locationStore.subscribe(href => {currentLocation = href; handleMusicStateChange()})
+    // Trigger music state change when route or interaction state changes
+    $: {
+        if (currentLocation && isUserInteracted !== undefined) {
+            handleMusicStateChange();
+        }
+    }
 
-    let isUserInteracted = false;
-    isUserInteractedStore.subscribe((v) => {isUserInteracted = v; handleMusicStateChange()})
-
-    console.log(currentLocation);
-    
     function handleMusicStateChange() {
         if (!musicRef) {
             return;
@@ -41,8 +39,10 @@
                 const interval = setInterval(() => {
                     if (i >= 100) {
                         clearInterval(interval)
-                        musicRef.pause()
-                        musicRef.currentTime = 0
+                        if (musicRef) {
+                            musicRef.pause()
+                            musicRef.currentTime = 0
+                        }
                     }
                     if (musicRef) {
                         musicRef.volume = (100 - i)*0.01
@@ -69,19 +69,20 @@
     <link rel="prefetch" href="/bad-for-the-ears.mp3" />
 </svelte:head>
 
-<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
+<div role="button" tabindex="0" class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     <!-- {#if isUserInteracted } -->
         <DoomFire
             on:render={() => console.log('doomfire render')}
             on:resize={() => console.log('doomfire resize')}
             containerRef={doomfireContainerRef}
-            decay={doomfireDecay}
-            wind={doomfireWind}
+            decay={$decay}
+            wind={$wind}
         />
     <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
-<main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />
         {#if !isUserInteracted}
@@ -106,11 +107,6 @@
 
     </section>
 </main>
-<!--
-<div class="progress-bar-container">
-    <ProgressBar progress={10} />
-</div>
--->
 <style>
     .doomfire-container {
         width: 100vw;
@@ -126,11 +122,5 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-    }
-    .progress-bar-container {
-        width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
     }
 </style>

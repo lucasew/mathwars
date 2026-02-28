@@ -1,5 +1,6 @@
 <script lang='ts'>
   import type { Match } from "../lib/match";
+  import { calculateMatchScores, type MatchScore } from "../lib/scoring";
   import { handleJump } from "../stores/location";
   import { onMount } from "svelte";
 
@@ -11,47 +12,16 @@ onMount(() => {
         alert('Esta página não foi feita para ser usada desta forma. Indo para a página inicial...')
         history.pushState({}, '', '/')
     }
-    state = JSON.parse(atob(url.searchParams.get('state')))
-    console.log(state)
+    const stateParam = url.searchParams.get('state');
+    if (stateParam) {
+        state = JSON.parse(atob(stateParam))
+        console.log(state)
+    }
 })
 
-let summary: Array<{
-  name: string,
-  id: string,
-  score: number,
-  acertos: number,
-  time: number
-}> = [];
+let summary: MatchScore[] = [];
 $: {
-  Object.keys(state).forEach((key) => {
-    const {name, plays} = state[key]
-    let pontos = 0
-    let seguido = 0
-    let acertos = 0
-    let time = 0
-    for (let play of plays) {
-      time += play.resposta.time
-      if (play.resposta.right) {
-        seguido++
-        acertos++
-      } else {
-        seguido = 0
-      }
-      const deltaPoints = Math.floor(Math.abs((10/Math.log10(play.resposta.time/1000))*seguido)*10)
-      console.log(deltaPoints)
-      pontos += deltaPoints
-      console.log(play)
-    }
-    summary.push({
-      name,
-      id: key,
-      score: pontos,
-      acertos: acertos / plays.length,
-      time: time
-    })
-  })
-  summary = summary.sort((x, y) => x.score - y.score)
-  console.log(summary)
+  summary = calculateMatchScores(state);
 }
 
 function handleCopyResultLink() {

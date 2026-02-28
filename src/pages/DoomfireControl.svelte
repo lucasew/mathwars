@@ -1,11 +1,8 @@
 <script lang="ts">
     import doomfireStore from '../stores/doomfire';
-    let doomfireDecay;
-    doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
-    doomfireStore.wind.subscribe((v) => doomfireWind = v)
-    $: doomfireStore.decay.set(doomfireDecay)
-    $: doomfireStore.wind.set(doomfireWind)
+
+    // Extract individual stores since doomfireStore is a plain object of stores
+    const { wind, decay } = doomfireStore;
 </script>
 
 <svelte:head>
@@ -14,11 +11,11 @@
 <section class="doomfire-control">
     <div>
         <p>Vento: </p>
-        <input type='number' step="0.1" bind:value={doomfireWind}>
+        <input type='number' step="0.1" bind:value={$wind}>
     </div>
     <div>
         <p>Decaimento: </p>
-        <input type="number" bind:value={doomfireDecay}>
+        <input type="number" bind:value={$decay}>
     </div>
 </section>
 

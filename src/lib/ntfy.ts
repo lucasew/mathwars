@@ -1,4 +1,5 @@
 import { idUsuario } from "./user";
+import { reportError } from "./errorReporting";
 
 export function getNtfyTopic(topic: string) {
     console.log("NTFY", topic)
@@ -27,7 +28,7 @@ export function getNtfyTopic(topic: string) {
                     console.log("NTFY", text)
                     callback(text)
                 } catch (e) {
-                    console.error(e)
+                    reportError(e, { context: "ntfy.ts subscribe" })
                 }
             }
         })
