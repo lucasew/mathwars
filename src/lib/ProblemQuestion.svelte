@@ -12,11 +12,9 @@
   })
 
   let problemSelectedStore = writable(false)
-  let problemSelected;
-  problemSelectedStore.subscribe((d) => problemSelected = d)
 
-  let successRiffRef;
-  let failRiffRef;
+  let successRiffRef: HTMLAudioElement;
+  let failRiffRef: HTMLAudioElement;
 
   const dispatch = createEventDispatcher()
 
@@ -28,7 +26,7 @@
               answer: alt
           }
       }))
-  ]).map((val, idx) => {
+  ]).map((val: any, idx: number) => {
       return {
           ...val,
           idx
@@ -36,7 +34,7 @@
   })
 
   function handleAnswer(right: boolean) {
-      problemSelectedStore.set(true)
+      $problemSelectedStore = true;
       if (right) {
         successRiffRef.pause()
         successRiffRef.currentTime = 0
@@ -49,10 +47,10 @@
       }
       const submissionTime = new Date();
       setTimeout(() => {
-          problemSelectedStore.set(false)
+          $problemSelectedStore = false;
           dispatch('answer', {
             right,
-            time: submissionTime - lastAnswer
+            time: submissionTime.getTime() - lastAnswer.getTime()
           })
           lastAnswer = new Date()
       }, 200)
@@ -68,8 +66,10 @@
 </p>
 
 {#each alternatives as alternative}
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <p
-        class="mathwars-button {problemSelected 
+        class="mathwars-button {$problemSelectedStore
           ? alternative.right 
             ? "mathwars-alternative-right"
             : "mathwars-alternative-wrong"

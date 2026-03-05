@@ -98,7 +98,7 @@ export function generateAlternatives(problem: Problem, amount = 4) {
     }
     while (alternatives.size < amount) {
         i++
-        alternatives.add(getProblemAnswer(generateProblem({})))
+        alternatives.add(getProblemAnswer(generateProblem({max: 20})))
         console.log("alternativas aleatórias")
         if (i > 200) break
     }

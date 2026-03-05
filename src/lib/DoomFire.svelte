@@ -7,11 +7,11 @@
     export let decay: number = 1.0; // x da altura pra decair tudo
     export let frame_delay: number = 70;
     /* let intensity = 80; */
-    export let containerRef;
-    let refCanvas;
+    export let containerRef: HTMLElement;
+    let refCanvas: HTMLCanvasElement;
     let requireRedraw = true;
     let stop = false;
-    let resizeTimeout = undefined
+    let resizeTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
 
     const dispatch = createEventDispatcher()
 
@@ -77,8 +77,8 @@
         const cellsx = dividerx + 1
         const cellsy = dividery + 1
         // console.log("render", 'decay', blockDecay, "cells", cellsx, cellsy)
-        if (requireRedraw) {
-            clearTimeout(resizeTimeout);
+        if (requireRedraw && context) {
+            if (resizeTimeout) clearTimeout(resizeTimeout);
             resizeTimeout = undefined;
             /* context.width = canvasWidth */
             /* context.height = canvasHeight */
@@ -114,7 +114,7 @@
                 /* console.log(colorIdx) */
                 const color = pallete[colorIdx]
                 /* console.log(colorIdx) */
-                if (color) {
+                if (color && context) {
                     /* console.log(color) */
                     context.resetTransform()
                     context.fillStyle = color

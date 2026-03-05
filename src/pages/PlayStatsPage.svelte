@@ -2,6 +2,7 @@
   import type { Match } from "../lib/match";
   import { handleJump } from "../stores/location";
   import { onMount } from "svelte";
+  import { reportError } from "../lib/errorReporting";
 
 
 let state: Record<string, Match> = {}
@@ -10,9 +11,19 @@ onMount(() => {
     if (!url.searchParams.has('state')) {
         alert('Esta página não foi feita para ser usada desta forma. Indo para a página inicial...')
         history.pushState({}, '', '/')
+        return
     }
-    state = JSON.parse(atob(url.searchParams.get('state')))
-    console.log(state)
+    const stateParam = url.searchParams.get('state');
+    if (!stateParam) return;
+
+    try {
+        state = JSON.parse(atob(stateParam))
+        console.log(state)
+    } catch (e) {
+        reportError(e, { module: 'PlayStatsPage', action: 'JSON.parse', stateParam })
+        alert('Ocorreu um erro ao carregar os dados da partida. Indo para a página inicial...')
+        history.pushState({}, '', '/')
+    }
 })
 
 let summary: Array<{

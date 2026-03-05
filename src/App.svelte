@@ -15,28 +15,24 @@
 
     console.log('idUsuario', idUsuario)
 
-    let doomfireDecay;
-    doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
-    doomfireStore.wind.subscribe((v) => doomfireWind = v)
+    const doomfireDecayStore = doomfireStore.decay;
+    const doomfireWindStore = doomfireStore.wind;
 
-    let doomfireContainerRef;
-    let musicRef;
+    let doomfireContainerRef: HTMLDivElement;
+    let musicRef: HTMLAudioElement;
 
-    let currentLocation;
-    locationStore.subscribe(href => {currentLocation = href; handleMusicStateChange()})
-
-    let isUserInteracted = false;
-    isUserInteractedStore.subscribe((v) => {isUserInteracted = v; handleMusicStateChange()})
-
-    console.log(currentLocation);
+    $: {
+        void $locationStore;
+        void $isUserInteractedStore;
+        handleMusicStateChange();
+    }
     
     function handleMusicStateChange() {
         if (!musicRef) {
             return;
         }
-        if (isUserInteracted) {
-            if (currentLocation.pathname.startsWith("/play")) {
+        if ($isUserInteractedStore) {
+            if ($locationStore.pathname.startsWith("/play")) {
                 let i = 0
                 const interval = setInterval(() => {
                     if (i >= 100) {
@@ -69,36 +65,37 @@
     <link rel="prefetch" href="/bad-for-the-ears.mp3" />
 </svelte:head>
 
-<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
+<div role="button" tabindex="0" class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     <!-- {#if isUserInteracted } -->
         <DoomFire
             on:render={() => console.log('doomfire render')}
             on:resize={() => console.log('doomfire resize')}
             containerRef={doomfireContainerRef}
-            decay={doomfireDecay}
-            wind={doomfireWind}
+            decay={$doomfireDecayStore}
+            wind={$doomfireWindStore}
         />
     <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
-<main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+<main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />
-        {#if !isUserInteracted}
+        {#if !$isUserInteractedStore}
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
-        {:else if currentLocation.pathname === "/"}
+        {:else if $locationStore.pathname === "/"}
             <MainPage/>
-        {:else if currentLocation.pathname === "/options"}
+        {:else if $locationStore.pathname === "/options"}
             <OptionsPage/>
-        {:else if currentLocation.pathname === '/play/quick'}
+        {:else if $locationStore.pathname === '/play/quick'}
             <QuickMatch/>
-        {:else if currentLocation.pathname === '/play/problemgen'}
+        {:else if $locationStore.pathname === '/play/problemgen'}
             <Problemgen/>
-        {:else if currentLocation.pathname === '/play/stats'}
+        {:else if $locationStore.pathname === '/play/stats'}
             <PlayStatsPage/>
-        {:else if currentLocation.pathname === '/play/questiongen'}
+        {:else if $locationStore.pathname === '/play/questiongen'}
             <Questiongen/>
-        {:else if currentLocation.pathname === "/doomfire"}
+        {:else if $locationStore.pathname === "/doomfire"}
             <DoomfireControl />
         {:else}
             <p class="mathwars-text-description">* Rota não encontrada *</p>
@@ -106,11 +103,7 @@
 
     </section>
 </main>
-<!--
-<div class="progress-bar-container">
-    <ProgressBar progress={10} />
-</div>
--->
+
 <style>
     .doomfire-container {
         width: 100vw;
@@ -126,11 +119,5 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-    }
-    .progress-bar-container {
-        width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
     }
 </style>
