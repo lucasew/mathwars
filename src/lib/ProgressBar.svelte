@@ -4,7 +4,7 @@
     export let color = 'white';
 </script>
 
-<div class="progress-bar" style={`width: ${progress}%; background-color: ${color}`}/>
+<div class="progress-bar" style={`width: ${progress}%; background-color: ${color}`}></div>
 
 <style>
     .progress-bar {

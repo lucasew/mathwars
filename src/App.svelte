@@ -15,28 +15,25 @@
 
     console.log('idUsuario', idUsuario)
 
-    let doomfireDecay;
-    doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
-    doomfireStore.wind.subscribe((v) => doomfireWind = v)
+    const doomfireDecay = doomfireStore.decay;
+    const doomfireWind = doomfireStore.wind;
 
-    let doomfireContainerRef;
-    let musicRef;
+    let doomfireContainerRef: HTMLDivElement;
+    let musicRef: HTMLAudioElement;
 
-    let currentLocation;
-    locationStore.subscribe(href => {currentLocation = href; handleMusicStateChange()})
-
-    let isUserInteracted = false;
-    isUserInteractedStore.subscribe((v) => {isUserInteracted = v; handleMusicStateChange()})
-
-    console.log(currentLocation);
+    $: console.log($locationStore);
+    $: {
+        $locationStore;
+        $isUserInteractedStore;
+        handleMusicStateChange();
+    }
     
     function handleMusicStateChange() {
         if (!musicRef) {
             return;
         }
-        if (isUserInteracted) {
-            if (currentLocation.pathname.startsWith("/play")) {
+        if ($isUserInteractedStore) {
+            if ($locationStore.pathname.startsWith("/play")) {
                 let i = 0
                 const interval = setInterval(() => {
                     if (i >= 100) {
@@ -75,30 +72,30 @@
             on:render={() => console.log('doomfire render')}
             on:resize={() => console.log('doomfire resize')}
             containerRef={doomfireContainerRef}
-            decay={doomfireDecay}
-            wind={doomfireWind}
+            decay={$doomfireDecay}
+            wind={$doomfireWind}
         />
     <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
-<main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
+<main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />
-        {#if !isUserInteracted}
+        {#if !$isUserInteractedStore}
             <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
-        {:else if currentLocation.pathname === "/"}
+        {:else if $locationStore.pathname === "/"}
             <MainPage/>
-        {:else if currentLocation.pathname === "/options"}
+        {:else if $locationStore.pathname === "/options"}
             <OptionsPage/>
-        {:else if currentLocation.pathname === '/play/quick'}
+        {:else if $locationStore.pathname === '/play/quick'}
             <QuickMatch/>
-        {:else if currentLocation.pathname === '/play/problemgen'}
+        {:else if $locationStore.pathname === '/play/problemgen'}
             <Problemgen/>
-        {:else if currentLocation.pathname === '/play/stats'}
+        {:else if $locationStore.pathname === '/play/stats'}
             <PlayStatsPage/>
-        {:else if currentLocation.pathname === '/play/questiongen'}
+        {:else if $locationStore.pathname === '/play/questiongen'}
             <Questiongen/>
-        {:else if currentLocation.pathname === "/doomfire"}
+        {:else if $locationStore.pathname === "/doomfire"}
             <DoomfireControl />
         {:else}
             <p class="mathwars-text-description">* Rota não encontrada *</p>
