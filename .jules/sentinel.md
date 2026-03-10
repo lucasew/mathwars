@@ -1,0 +1,1 @@
+- 2025-03-10: [Medium] Ignored/swallowed errors and uncentralized error logging mask bugs and vulnerabilities downstream.
