@@ -1,15 +1,23 @@
 import { idUsuario } from "./user";
+import { reportError } from "./errorReporting";
 
 export function getNtfyTopic(topic: string) {
     console.log("NTFY", topic)
     async function send(text: string) {
-        const res = await fetch(`https://ntfy.sh/${topic}`, {
-            method: 'POST',
-            body: JSON.stringify({
-                text,
-                uuid: idUsuario
-            })
-        })
+        try {
+            const res = await fetch(`https://ntfy.sh/${topic}`, {
+                method: 'POST',
+                body: JSON.stringify({
+                    text,
+                    uuid: idUsuario
+                })
+            });
+            if (!res.ok) {
+                reportError(new Error(`Failed to send message: ${res.statusText}`), { topic, text });
+            }
+        } catch (e) {
+            reportError(e, { context: "ntfy send message", topic, text });
+        }
     }
     async function subscribe(callback: (message: string) => any) {
         const wsUrl = `ws://ntfy.sh/${topic}/ws`;
@@ -27,7 +35,7 @@ export function getNtfyTopic(topic: string) {
                     console.log("NTFY", text)
                     callback(text)
                 } catch (e) {
-                    console.error(e)
+                    reportError(e, { context: "ntfy websocket message handler", rawMessage: message });
                 }
             }
         })

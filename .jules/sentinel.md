@@ -1,0 +1,1 @@
+- 2024-03-10: [Medium] Ignored/swallowed errors without using centralized error reporting mechanism.
