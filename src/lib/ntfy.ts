@@ -1,7 +1,20 @@
 import { idUsuario } from "./user";
 
+/**
+ * Establishes a Pub/Sub communication channel over ntfy.sh using a specific topic.
+ *
+ * Provides methods to send stringified payloads and subscribe to incoming messages via WebSockets.
+ * Messages originating from the current client (`idUsuario`) are filtered out automatically to prevent echo loops.
+ *
+ * @param topic - The target ntfy.sh topic ID used for isolated channel routing.
+ */
 export function getNtfyTopic(topic: string) {
     console.log("NTFY", topic)
+
+    /**
+     * Broadcasts a JSON-encoded payload to the ntfy.sh topic over HTTP POST.
+     * Includes the current user's UUID to allow other clients to identify the sender.
+     */
     async function send(text: string) {
         const res = await fetch(`https://ntfy.sh/${topic}`, {
             method: 'POST',
@@ -11,6 +24,15 @@ export function getNtfyTopic(topic: string) {
             })
         })
     }
+    /**
+     * Opens a WebSocket connection to listen for new messages on the topic.
+     *
+     * Parses incoming JSON payloads and fires the callback only if the event is a 'message'
+     * and the sender's UUID is different from the current client (`idUsuario`).
+     *
+     * @param callback - Function invoked with the text payload when a valid message is received.
+     * @returns A cleanup function to close the active WebSocket connection.
+     */
     async function subscribe(callback: (message: string) => any) {
         const wsUrl = `ws://ntfy.sh/${topic}/ws`;
         console.log(`'${wsUrl}'`)
