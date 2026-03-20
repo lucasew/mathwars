@@ -1,5 +1,15 @@
 import { idUsuario } from "./user";
 
+/**
+ * Factory function creating a Pub/Sub interface over ntfy.sh for multiplayer matches.
+ *
+ * Uses standard HTTP POST for sending messages to a topic and WebSockets for
+ * real-time listening. It incorporates the user's `idUsuario` to identify
+ * and ignore self-published events on the WebSocket side, preventing echo loops.
+ *
+ * @param topic The unique identifier for a given ntfy.sh channel or game room.
+ * @returns An object containing `send` and `subscribe` capabilities for this topic.
+ */
 export function getNtfyTopic(topic: string) {
     console.log("NTFY", topic)
     async function send(text: string) {

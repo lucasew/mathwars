@@ -1,9 +1,24 @@
+/**
+ * Represents a mathematical problem to be solved by the user.
+ *
+ * Used across the game loop to track the current question and validate answers.
+ */
 export type Problem = {
     a: number
     op: '+' | '-' | '*' | '/'
     b: number
 }
 
+/**
+ * Generates a random math problem based on the provided configuration.
+ *
+ * It enforces that subtractions or additions with a negative `b`
+ * are inverted to avoid confusing equations like `5 - -3`.
+ *
+ * @param options Configuration for the generation, controlling maximum numbers,
+ *                probability of negative numbers, and allowed operators.
+ * @returns A generated mathematical problem ready to be displayed.
+ */
 export function generateProblem(options: {
     max: number,
     negativeProb?: number
@@ -35,6 +50,15 @@ export function generateProblem(options: {
     }
 }
 
+/**
+ * Evaluates the actual answer of a given math problem.
+ *
+ * Useful for validating user answers or generating trick alternative answers.
+ * Throws an error if the operator is not recognized, funneling invalid states.
+ *
+ * @param problem The math problem to be calculated.
+ * @returns The exact mathematical result.
+ */
 export function getProblemAnswer(problem: Problem) {
     const {op, a, b} = problem
     switch (op) {
@@ -81,6 +105,18 @@ const alternativeStrategies: Array<(problem: Problem)=>number> = [
     }
 ]
 
+/**
+ * Generates a set of multiple-choice alternative answers for a given problem.
+ *
+ * Mixes different strategies (e.g. changing an operand, varying the result,
+ * changing the sign or switching operator) to produce plausible distractors.
+ * If strategies fail to find unique values, it falls back to answers from
+ * completely random problems to guarantee the requested number of choices.
+ *
+ * @param problem The base problem to generate alternatives for.
+ * @param amount Total number of alternative answers to return.
+ * @returns An array of unique, trick/alternative answers.
+ */
 export function generateAlternatives(problem: Problem, amount = 4) {
     const solution = getProblemAnswer(problem)
     let alternatives = new Set()
