@@ -1,0 +1,1 @@
+- 2024-04-06: Ignored/swallowed errors without using the centralized error reporter can mask downstream vulnerabilities.
