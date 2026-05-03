@@ -1,8 +1,8 @@
 <script lang="ts">
     import doomfireStore from '../stores/doomfire';
-    let doomfireDecay;
+    let doomfireDecay: number;
     doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
+    let doomfireWind: number;
     doomfireStore.wind.subscribe((v) => doomfireWind = v)
     $: doomfireStore.decay.set(doomfireDecay)
     $: doomfireStore.wind.set(doomfireWind)

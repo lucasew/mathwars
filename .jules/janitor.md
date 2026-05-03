@@ -1,0 +1,1 @@
+- 2025-05-03: Added explicit typings and resolved 'any' type errors to strictly satisfy TypeScript constraints across Svelte files.
