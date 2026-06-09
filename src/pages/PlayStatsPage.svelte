@@ -7,11 +7,13 @@
 let state: Record<string, Match> = {}
 onMount(() => {
     const url = new URL(window.location.href)
-    if (!url.searchParams.has('state')) {
+    const stateParam = url.searchParams.get('state')
+    if (!stateParam) {
         alert('Esta página não foi feita para ser usada desta forma. Indo para a página inicial...')
         history.pushState({}, '', '/')
+        return
     }
-    state = JSON.parse(atob(url.searchParams.get('state')))
+    state = JSON.parse(atob(stateParam))
     console.log(state)
 })
 

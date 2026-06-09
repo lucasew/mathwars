@@ -1,0 +1,1 @@
+- 2024-06-09: Prefer idiomatic Svelte reactive store syntax ($storeName) over manual .subscribe() calls to prevent memory leaks and implicit 'any' type errors.
