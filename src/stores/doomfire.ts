@@ -1,6 +1,4 @@
 import { writable } from "svelte/store";
 
-export default {
-    decay: writable(256),
-    wind: writable(1.5)
-}
+export const decay = writable(256);
+export const wind = writable(1.5);

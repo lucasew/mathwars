@@ -3,7 +3,7 @@
     import MathwarsLogo from './lib/MathwarsLogo.svelte'
     import locationStore, { handleJump } from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
-    import doomfireStore from './stores/doomfire';
+    import { decay, wind } from './stores/doomfire';
     import { idUsuario, usernameStore } from './lib/user';
     import Problemgen from './pages/Problemgen.svelte';
     import Questiongen from './pages/Questiongen.svelte';
@@ -14,11 +14,6 @@
     import MainPage from './pages/MainPage.svelte';
 
     console.log('idUsuario', idUsuario)
-
-    let doomfireDecay;
-    doomfireStore.decay.subscribe((v) => doomfireDecay = v)
-    let doomfireWind;
-    doomfireStore.wind.subscribe((v) => doomfireWind = v)
 
     let doomfireContainerRef;
     let musicRef;
@@ -75,8 +70,8 @@
             on:render={() => console.log('doomfire render')}
             on:resize={() => console.log('doomfire resize')}
             containerRef={doomfireContainerRef}
-            decay={doomfireDecay}
-            wind={doomfireWind}
+            decay={$decay}
+            wind={$wind}
         />
     <!-- {/if} -->
 </div>
