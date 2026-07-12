@@ -1,7 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from "svelte";
-  import { writable } from "svelte/store";
-  import { generateAlternatives, getProblemAnswer, type Problem } from "./problemgen";
+    import { generateAlternatives, getProblemAnswer, type Problem } from "./problemgen";
   import { shuffleArray } from "./shuffle";
 
   export let problem: Problem = {a: 2, b: 2, op: '+'};
@@ -11,9 +10,7 @@
     lastAnswer = new Date()
   })
 
-  let problemSelectedStore = writable(false)
-  let problemSelected;
-  problemSelectedStore.subscribe((d) => problemSelected = d)
+  let problemSelected = false;
 
   let successRiffRef;
   let failRiffRef;
@@ -36,7 +33,7 @@
   })
 
   function handleAnswer(right: boolean) {
-      problemSelectedStore.set(true)
+      problemSelected = true
       if (right) {
         successRiffRef.pause()
         successRiffRef.currentTime = 0
@@ -49,7 +46,7 @@
       }
       const submissionTime = new Date();
       setTimeout(() => {
-          problemSelectedStore.set(false)
+          problemSelected = false
           dispatch('answer', {
             right,
             time: submissionTime - lastAnswer

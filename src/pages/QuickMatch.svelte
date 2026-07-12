@@ -14,8 +14,7 @@
     $: ops = new Set(opsTxt.split('').filter((item) => "+-/*".includes(item))) as Set<Problem['op']>
     $: opsArg = [...ops].length == 0 ? undefined : ops
 
-    let username;
-    usernameStore.subscribe((u) => username = u)
+
 
     onMount(() => {
         const url = new URL(window.location.href)
@@ -53,7 +52,7 @@
         if (respostas.length >= jogadas) {
             console.log('mais respostas que jogadas')
             const id = idUsuario;
-            const name = username;
+            const name = $usernameStore;
             const result: Record<string, Match> = {
                 [id]: {
                     name,
