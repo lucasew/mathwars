@@ -11,7 +11,7 @@ export function getNtfyTopic(topic: string) {
             })
         })
     }
-    async function subscribe(callback: (message: string) => any) {
+    async function subscribe(callback: (message: string) => void) {
         const wsUrl = `ws://ntfy.sh/${topic}/ws`;
         console.log(`'${wsUrl}'`)
         const ws = new WebSocket(wsUrl);

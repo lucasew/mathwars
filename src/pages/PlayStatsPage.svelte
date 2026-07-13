@@ -11,7 +11,7 @@ onMount(() => {
         alert('Esta página não foi feita para ser usada desta forma. Indo para a página inicial...')
         history.pushState({}, '', '/')
     }
-    state = JSON.parse(atob(url.searchParams.get('state')))
+    state = JSON.parse(atob(url.searchParams.get('state') || ""))
     console.log(state)
 })
 
