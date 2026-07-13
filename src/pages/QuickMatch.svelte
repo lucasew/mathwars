@@ -19,16 +19,16 @@
     onMount(() => {
         const url = new URL(window.location.href)
         if (url.searchParams.has('maxNumber')) {
-            const n = parseInt(url.searchParams.get('maxNumber'))
+            const n = parseInt(url.searchParams.get('maxNumber') || "")
             if (!isNaN(n)) {
                 maxNumber = n
             }
         }
         if (url.searchParams.has('ops')) {
-            opsTxt = url.searchParams.get('ops').replace(' ', '+')
+            opsTxt = (url.searchParams.get('ops') || "").replace(' ', '+')
         }
         if (url.searchParams.has('plays')) {
-            const n = parseInt(url.searchParams.get('plays'))
+            const n = parseInt(url.searchParams.get('plays') || "")
             if (!isNaN(n)) {
                 jogadas = n
             }
@@ -51,7 +51,7 @@
         console.log(respostas.length)
         if (respostas.length >= jogadas) {
             console.log('mais respostas que jogadas')
-            const id = idUsuario;
+            const id = idUsuario || "unknown";
             const name = $usernameStore;
             const result: Record<string, Match> = {
                 [id]: {
@@ -73,7 +73,7 @@
         problem = nextProblem()
     }
 
-    function handleCopyMatchLink(e) {
+    function handleCopyMatchLink(e: MouseEvent) {
         e.preventDefault()
         let url = new URL(window.location.href)
         url.searchParams.set('maxNumber', String(maxNumber))

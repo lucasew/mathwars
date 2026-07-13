@@ -12,20 +12,20 @@
 
   let problemSelected = false;
 
-  let successRiffRef;
-  let failRiffRef;
+  let successRiffRef: HTMLAudioElement | undefined;
+  let failRiffRef: HTMLAudioElement | undefined;
 
   const dispatch = createEventDispatcher()
 
   $: alternatives = shuffleArray([
       {right: true, answer: getProblemAnswer(problem)}, 
-      ...(generateAlternatives(problem).map(alt => {
+      ...(generateAlternatives(problem).map((alt: unknown) => {
           return {
               right: false,
-              answer: alt
+              answer: alt as number
           }
       }))
-  ]).map((val, idx) => {
+  ]).map((val: {right: boolean, answer: number}, idx: number) => {
       return {
           ...val,
           idx
@@ -35,21 +35,24 @@
   function handleAnswer(right: boolean) {
       problemSelected = true
       if (right) {
-        successRiffRef.pause()
-        successRiffRef.currentTime = 0
-        successRiffRef.play()
+        if (successRiffRef) {
+          successRiffRef.pause()
+          successRiffRef.currentTime = 0
+          successRiffRef.play()
+        }
       } else {
-        failRiffRef.pause()
-        failRiffRef.currentTime = 0
-        failRiffRef.play()
-
+        if (failRiffRef) {
+          failRiffRef.pause()
+          failRiffRef.currentTime = 0
+          failRiffRef.play()
+        }
       }
       const submissionTime = new Date();
       setTimeout(() => {
           problemSelected = false
           dispatch('answer', {
             right,
-            time: submissionTime - lastAnswer
+            time: submissionTime.getTime() - lastAnswer.getTime()
           })
           lastAnswer = new Date()
       }, 200)

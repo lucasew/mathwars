@@ -15,8 +15,8 @@
 
     console.log('idUsuario', idUsuario)
 
-    let doomfireContainerRef;
-    let musicRef;
+    let doomfireContainerRef: HTMLDivElement | undefined;
+    let musicRef: HTMLAudioElement | undefined;
 
 
 
@@ -40,8 +40,10 @@
                 const interval = setInterval(() => {
                     if (i >= 100) {
                         clearInterval(interval)
-                        musicRef.pause()
-                        musicRef.currentTime = 0
+                        if (musicRef) {
+                            musicRef.pause()
+                            musicRef.currentTime = 0
+                        }
                     }
                     if (musicRef) {
                         musicRef.volume = (100 - i)*0.01
@@ -80,7 +82,7 @@
     <!-- {/if} -->
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
-<main on:click={handleUserInteraction} on:tap={handleUserInteraction} on:keypress={noop}>
+<main on:click={handleUserInteraction} on:keypress={noop}>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />
         {#if !$isUserInteractedStore}
