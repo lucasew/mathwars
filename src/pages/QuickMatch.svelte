@@ -45,7 +45,7 @@
         })
     }
 
-    function handleAnswer(event: CustomEvent<any>) {
+    function handleAnswer(event: CustomEvent<{right: boolean, time: number}>) {
         console.log('answer', event.detail)
         respostas.push({pergunta: problem, resposta: event.detail})
         console.log(respostas.length)
