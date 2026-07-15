@@ -10,17 +10,27 @@ export function generateProblem(options: {
     ops?: Set<Problem['op']>
 }): Problem {
     let usedOps: Set<Problem['op']> = new Set(['+', '-', '*', '/'])
-    if (options.ops && [...options.ops].length > 0) {
-        console.log('usando options.ops')
+    if (options.ops && options.ops.size > 0) {
         usedOps = options.ops
     }
-    let opsList = [...usedOps]
-    // console.log('ops', opsList)
+    const opsList = [...usedOps]
 
-    const op = opsList[Math.floor(Math.random()*opsList.length)]
+    const op = opsList[Math.floor(Math.random() * opsList.length)]
 
-    let a = 1 + Math.floor(Math.random()*options.max)
-    let b = 1 + Math.floor(Math.random()*options.max)
+    let a: number
+    let b: number
+    if (op === '/') {
+        // Contas de cabeça: keep both operands in 1..max and force an integer quotient.
+        // Pick divisor b, then quotient q so dividend a = b * q stays ≤ max.
+        b = 1 + Math.floor(Math.random() * options.max)
+        const maxQuotient = Math.max(1, Math.floor(options.max / b))
+        const q = 1 + Math.floor(Math.random() * maxQuotient)
+        a = b * q
+    } else {
+        a = 1 + Math.floor(Math.random() * options.max)
+        b = 1 + Math.floor(Math.random() * options.max)
+    }
+
     if (options.negativeProb) {
         if (Math.random() < options.negativeProb) a = -a
         if (Math.random() < options.negativeProb) b = -b
@@ -83,7 +93,7 @@ const alternativeStrategies: Array<(problem: Problem)=>number> = [
 
 export function generateAlternatives(problem: Problem, amount = 4) {
     const solution = getProblemAnswer(problem)
-    let alternatives = new Set()
+    const alternatives = new Set<number>()
     let i = 0;
     while (alternatives.size < amount) {
         const strat = alternativeStrategies[Math.floor(Math.random()*alternativeStrategies.length)]
@@ -94,12 +104,10 @@ export function generateAlternatives(problem: Problem, amount = 4) {
             continue
         }
         alternatives.add(variatedAnswer)
-        console.log("alternatives")
     }
     while (alternatives.size < amount) {
         i++
         alternatives.add(getProblemAnswer(generateProblem({ max: 20 })))
-        console.log("alternativas aleatórias")
         if (i > 200) break
     }
     return [...alternatives]
