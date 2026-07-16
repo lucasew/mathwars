@@ -15,6 +15,20 @@
 
     const dispatch = createEventDispatcher()
 
+    let waitElementTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+    let renderTimeout: ReturnType<typeof setTimeout> | undefined = undefined;
+
+    function scheduleNextFrame() {
+        if (stop) return;
+        if (renderTimeout !== undefined) {
+            clearTimeout(renderTimeout);
+        }
+        renderTimeout = setTimeout(() => {
+            renderTimeout = undefined;
+            requestAnimationFrame(handle_render);
+        }, frame_delay);
+    }
+
     onMount(() => {
         const handleResize = () => {
             if (!containerRef || !refCanvas) return;
@@ -24,6 +38,7 @@
                 clearTimeout(resizeTimeout)
             }
             resizeTimeout = setTimeout(() => {
+                resizeTimeout = undefined;
                 if (refCanvas) {
                     refCanvas.width = width || 2;
                     refCanvas.height = height || 2;
@@ -36,7 +51,8 @@
             }, 1000)
         }
         const handleWaitElement = () => {
-            setTimeout(() => {
+            waitElementTimeout = setTimeout(() => {
+                waitElementTimeout = undefined;
                 if (!containerRef) {
                     handleWaitElement()
                 } else {
@@ -46,36 +62,44 @@
         }
         const resizeObserver = new ResizeObserver(handleResize)
         handleWaitElement()
-        return () => {
-            if (containerRef) {
-                resizeObserver.unobserve(containerRef);
-            }
-            stop = true;
-        }
-    })
-    onMount(() => {
         requestAnimationFrame(handle_render)
         return () => {
             stop = true;
+            if (waitElementTimeout !== undefined) {
+                clearTimeout(waitElementTimeout);
+                waitElementTimeout = undefined;
+            }
+            if (resizeTimeout !== undefined) {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = undefined;
+            }
+            if (renderTimeout !== undefined) {
+                clearTimeout(renderTimeout);
+                renderTimeout = undefined;
+            }
+            resizeObserver.disconnect();
         }
     })
     let fireArray = new Float32Array(0)
     function handle_render() {
+        if (stop) {
+            return;
+        }
         if (!containerRef || !refCanvas) {
-            if (!stop) {
-                setTimeout(handle_render, frame_delay);
-            }
+            scheduleNextFrame();
             return;
         }
         const canvasWidth = containerRef.offsetWidth;
         const canvasHeight = containerRef.offsetHeight;
         const dividerx = Math.floor(canvasWidth / tileSize);
         const dividery = Math.floor(canvasHeight / tileSize);
+        // Viewport smaller than one tile → skip sim (avoids /0 → Infinity/NaN fire cells)
+        if (dividerx < 1 || dividery < 1) {
+            scheduleNextFrame();
+            return;
+        }
         const blockDecay = decay / dividery;
         const blockWind = wind / dividerx;
-        if (stop) {
-            return
-        }
         dispatch('render', {
             canvasWidth,
             canvasHeight,
@@ -85,23 +109,19 @@
             blockWind
         })
         const context = refCanvas.getContext('2d')
-        if (!context) return;
+        if (!context) {
+            scheduleNextFrame();
+            return;
+        }
         const cellsx = dividerx + 1
         const cellsy = dividery + 1
-        // console.log("render", 'decay', blockDecay, "cells", cellsx, cellsy)
         if (requireRedraw) {
             clearTimeout(resizeTimeout);
             resizeTimeout = undefined;
-            /* context.width = canvasWidth */
-            /* context.height = canvasHeight */
-            /* refCanvas.width = canvasWidth */
-            /* refCanvas.height = canvasHeight */
             const arraySize = cellsx*cellsy;
-            // console.log("array", arraySize)
             context.fillRect(0, 0, canvasWidth, canvasHeight)
             fireArray = new Float32Array(arraySize) // zerofill
             for (let i = 0; i < cellsx; i++) {
-                /* fireArray[ */
                 fireArray[(cellsy*cellsx - 1) - i] = intensity;
             }
             requireRedraw=false
@@ -112,22 +132,12 @@
             const res = fireArray[sourceIndex] - (Math.random()*blockDecay)
             fireArray[i] = res > 0 ? res : 0;
         }
-        /* fireArray[0] = 36 */
-        /* fireArray[1] = 36 */
-        /* fireArray[cellsx] = 36 */
-        /* fireArray[cellsx + 2] = 36 */
         for (let i = 0; i < cellsy; i++) {
-        /* for (let i = 0; i < 3; i++) { */
             for (let j = 0; j < cellsx; j++) {
-            /* for (let j = 0; j < 3; j++) { */
                 const arrIdx = i*cellsx + j
-                /* console.log(arrIdx) */
                 const colorIdx = Math.round(fireArray[arrIdx])
-                /* console.log(colorIdx) */
                 const color = pallete[colorIdx]
-                /* console.log(colorIdx) */
                 if (color) {
-                    /* console.log(color) */
                     context.resetTransform()
                     context.fillStyle = color
                     const xi = j*tileSize
@@ -138,8 +148,7 @@
                 }
             }
         }
-        // tick
-        setTimeout(() => requestAnimationFrame(handle_render), frame_delay)
+        scheduleNextFrame()
     }
 </script>
 
