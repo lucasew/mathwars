@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import type { Match } from "../lib/match";
+  import { decodeMatchState, encodeMatchState, type Match } from "../lib/match";
   import { onMount } from "svelte";
 
   type PlayerSummary = {
@@ -14,13 +14,15 @@
 
   onMount(() => {
     const url = new URL(window.location.href)
-    if (!url.searchParams.has('state')) {
+    const raw = url.searchParams.get('state')
+    if (raw === null || raw === '') {
       alert('Esta página não foi feita para ser usada desta forma. Indo para a página inicial...')
       history.pushState({}, '', '/')
       return
     }
     try {
-      state = JSON.parse(atob(url.searchParams.get('state') || ""))
+      // searchParams.get already URI-decodes; decodeMatchState handles UTF-8 base64
+      state = decodeMatchState(raw)
     } catch {
       alert('Estado da partida inválido. Indo para a página inicial...')
       history.pushState({}, '', '/')
@@ -63,7 +65,8 @@
 
   function handleCopyResultLink() {
     const url = new URL(window.location.href)
-    url.searchParams.set('state', btoa(JSON.stringify(state)))
+    // searchParams.set URI-encodes, so base64 '+' survives the round-trip
+    url.searchParams.set('state', encodeMatchState(state))
     navigator.clipboard.writeText(url.toString())
     alert("Copiado!")
   }
