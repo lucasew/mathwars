@@ -57,14 +57,15 @@
                 }, 10)
             } else {
                 musicRef.volume = 1
-                musicRef.play()
+                // play() rejects when interrupted or blocked; do not surface unhandled rejections
+                void musicRef.play().catch(() => {})
             }
         }
     }
     function handleUserInteraction() {
+        if ($isUserInteractedStore) return
         $isUserInteractedStore = true
     }
-    function noop() {}
 </script>
 
 <svelte:head>
@@ -74,21 +75,23 @@
     <link rel="prefetch" href="/bad-for-the-ears.mp3" />
 </svelte:head>
 
-<div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
-    <!-- {#if isUserInteracted } -->
-        <DoomFire
-            containerRef={doomfireContainerRef}
-            decay={$decay}
-            wind={$wind}
-        />
-    <!-- {/if} -->
+<!-- First gesture unlocks audio for keyboard and pointer users (not a static click trap). -->
+<svelte:window on:pointerdown={handleUserInteraction} on:keydown={handleUserInteraction} />
+
+<!-- Decorative background only (z-index: -1); home navigation is the logo button. -->
+<div class="doomfire-container" bind:this={doomfireContainerRef}>
+    <DoomFire
+        containerRef={doomfireContainerRef}
+        decay={$decay}
+        wind={$wind}
+    />
 </div>
 <audio bind:this={musicRef} id="audio-intro" src="/intro.m4a" loop></audio>
-<main on:click={handleUserInteraction} on:keypress={noop}>
+<main>
     <section class="mathwars-page-section">
         <MathwarsLogo on:click={handleJump("/")} />
         {#if !$isUserInteractedStore}
-            <p class="mathwars-text-description">Clique em algum lugar para iniciar</p>
+            <p class="mathwars-text-description">Clique ou pressione uma tecla para iniciar</p>
         {:else if $locationStore.pathname === "/"}
             <MainPage/>
         {:else if $locationStore.pathname === "/options"}
@@ -109,11 +112,6 @@
 
     </section>
 </main>
-<!--
-<div class="progress-bar-container">
-    <ProgressBar progress={10} />
-</div>
--->
 <style>
     .doomfire-container {
         width: 100vw;
@@ -129,11 +127,5 @@
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-    }
-    .progress-bar-container {
-        width: 100vw;
-        position: fixed;
-        top: 0;
-        left: 0;
     }
 </style>
