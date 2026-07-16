@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from "svelte";
-    import { generateAlternatives, getProblemAnswer, type Problem } from "./problemgen";
+  import { createEventDispatcher, onDestroy, onMount } from "svelte";
+  import { generateAlternatives, getProblemAnswer, type Problem } from "./problemgen";
   import { shuffleArray } from "./shuffle";
 
   export let problem: Problem = {a: 2, b: 2, op: '+'};
@@ -11,6 +11,14 @@
   })
 
   let problemSelected = false;
+  let answerTimeout: ReturnType<typeof setTimeout> | undefined;
+
+  onDestroy(() => {
+    if (answerTimeout !== undefined) {
+      clearTimeout(answerTimeout)
+      answerTimeout = undefined
+    }
+  })
 
   let successRiffRef: HTMLAudioElement | undefined;
   let failRiffRef: HTMLAudioElement | undefined;
@@ -18,37 +26,37 @@
   const dispatch = createEventDispatcher()
 
   $: alternatives = shuffleArray([
-      {right: true, answer: getProblemAnswer(problem)}, 
-      ...(generateAlternatives(problem).map((alt: unknown) => {
-          return {
-              right: false,
-              answer: alt as number
-          }
+      {right: true, answer: getProblemAnswer(problem)},
+      ...generateAlternatives(problem).map((alt) => ({
+          right: false,
+          answer: Number(alt),
       }))
-  ]).map((val: {right: boolean, answer: number}, idx: number) => {
-      return {
-          ...val,
-          idx
-      }
-  })
+  ]).map((val, idx) => ({
+      ...val,
+      idx
+  }))
 
   function handleAnswer(right: boolean) {
+      // Ignore further clicks during the feedback window so one problem
+      // cannot enqueue multiple match answers.
+      if (problemSelected) return
       problemSelected = true
       if (right) {
         if (successRiffRef) {
           successRiffRef.pause()
           successRiffRef.currentTime = 0
-          successRiffRef.play()
+          void successRiffRef.play()
         }
       } else {
         if (failRiffRef) {
           failRiffRef.pause()
           failRiffRef.currentTime = 0
-          failRiffRef.play()
+          void failRiffRef.play()
         }
       }
       const submissionTime = new Date();
-      setTimeout(() => {
+      answerTimeout = setTimeout(() => {
+          answerTimeout = undefined
           problemSelected = false
           dispatch('answer', {
             right,
@@ -68,18 +76,16 @@
 </p>
 
 {#each alternatives as alternative}
-    <p
-        class="mathwars-button {problemSelected 
-          ? alternative.right 
+    <button
+        type="button"
+        class="mathwars-button {problemSelected
+          ? alternative.right
             ? "mathwars-alternative-right"
             : "mathwars-alternative-wrong"
           : ""
         }"
-        on:click={alternative.right
-          ? () => handleAnswer(true)
-          : () => handleAnswer(false)
-        }
-    >{alternative.answer}</p>
+        on:click={() => handleAnswer(alternative.right)}
+    >{alternative.answer}</button>
 {/each}
 
 <style>
