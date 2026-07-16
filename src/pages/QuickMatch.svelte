@@ -4,7 +4,7 @@
     import { onMount } from 'svelte';
     import { idUsuario, usernameStore } from '../lib/user';
     import { handleJump } from '../stores/location';
-    import type { Match } from '../lib/match';
+    import { encodeMatchState, type Match } from '../lib/match';
 
     let playing = false;
     let ops: Set<Problem['op']> = new Set([]);
@@ -65,8 +65,8 @@
                     }
                 }
             }
-            const resultJSON = JSON.stringify(result)
-            handleJump(`/play/stats?state=${btoa(resultJSON)}`)()
+            // encodeURIComponent: base64 '+' must not become a space in the query string
+            handleJump(`/play/stats?state=${encodeURIComponent(encodeMatchState(result))}`)()
             return
         }
         problem = nextProblem()
