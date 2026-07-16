@@ -1,10 +1,10 @@
 <script lang="ts">
+    import { onDestroy } from 'svelte'
     import DoomFire from './lib/DoomFire.svelte'
     import MathwarsLogo from './lib/MathwarsLogo.svelte'
     import locationStore, { handleJump } from './stores/location'
     import isUserInteractedStore from './stores/isUserInteracted'
     import { decay, wind } from './stores/doomfire';
-    import { idUsuario, usernameStore } from './lib/user';
     import Problemgen from './pages/Problemgen.svelte';
     import Questiongen from './pages/Questiongen.svelte';
     import QuickMatch from './pages/QuickMatch.svelte';
@@ -13,43 +13,47 @@
     import OptionsPage from './pages/OptionsPage.svelte';
     import MainPage from './pages/MainPage.svelte';
 
-    console.log('idUsuario', idUsuario)
-
     let doomfireContainerRef: HTMLDivElement | undefined;
     let musicRef: HTMLAudioElement | undefined;
+    let musicFadeInterval: ReturnType<typeof setInterval> | undefined;
 
+    function clearMusicFade() {
+        if (musicFadeInterval !== undefined) {
+            clearInterval(musicFadeInterval)
+            musicFadeInterval = undefined
+        }
+    }
 
-
-
-
-    console.log($locationStore);
+    onDestroy(clearMusicFade)
 
     $: {
         $locationStore;
         $isUserInteractedStore;
         handleMusicStateChange();
     }
-    
+
     function handleMusicStateChange() {
         if (!musicRef) {
             return;
         }
+        // Always cancel a previous fade so reactive re-runs cannot stack intervals.
+        clearMusicFade()
         if ($isUserInteractedStore) {
             if ($locationStore.pathname.startsWith("/play")) {
                 let i = 0
-                const interval = setInterval(() => {
+                musicFadeInterval = setInterval(() => {
+                    if (!musicRef) {
+                        clearMusicFade()
+                        return
+                    }
                     if (i >= 100) {
-                        clearInterval(interval)
-                        if (musicRef) {
-                            musicRef.pause()
-                            musicRef.currentTime = 0
-                        }
+                        clearMusicFade()
+                        musicRef.pause()
+                        musicRef.currentTime = 0
+                        return
                     }
-                    if (musicRef) {
-                        musicRef.volume = (100 - i)*0.01
-                        i++
-                    }
-
+                    musicRef.volume = (100 - i) * 0.01
+                    i++
                 }, 10)
             } else {
                 musicRef.volume = 1
@@ -73,8 +77,6 @@
 <div class="doomfire-container" bind:this={doomfireContainerRef} on:click={handleJump("/")} on:keypress={noop}>
     <!-- {#if isUserInteracted } -->
         <DoomFire
-            on:render={() => console.log('doomfire render')}
-            on:resize={() => console.log('doomfire resize')}
             containerRef={doomfireContainerRef}
             decay={$decay}
             wind={$wind}
