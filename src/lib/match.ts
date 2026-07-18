@@ -18,6 +18,34 @@ export type Match = {
 
 export type MatchState = Record<string, Match>
 
+/**
+ * Points for one answered play given the current correct-answer streak.
+ * Faster answers score higher; wrong answers (streak 0) score 0.
+ * Time is clamped so zero/near-zero ms cannot explode the score.
+ */
+export function pointsForPlay(timeMs: number, streak: number): number {
+    if (streak <= 0) return 0
+    // 50ms floor ≈ one frame pair; avoids /0 and absurd sub-ms scores
+    const ms = Math.max(timeMs, 50)
+    // ~200 * streak at 50ms, ~10 * streak at 1s, ~2 * streak at 5s
+    return Math.floor((10000 / ms) * streak)
+}
+
+/** Total score for a player's ordered plays (streak resets on wrong answers). */
+export function scorePlays(plays: Match['plays']): number {
+    let total = 0
+    let streak = 0
+    for (const play of plays) {
+        if (play.resposta.right) {
+            streak++
+        } else {
+            streak = 0
+        }
+        total += pointsForPlay(play.resposta.time, streak)
+    }
+    return total
+}
+
 /** UTF-8 JSON → standard base64 (not URI-encoded). Safe for accented names. */
 export function encodeMatchState(state: MatchState): string {
     const bytes = new TextEncoder().encode(JSON.stringify(state))

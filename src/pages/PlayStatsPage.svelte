@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { decodeMatchState, encodeMatchState, type Match } from "../lib/match";
+  import { decodeMatchState, encodeMatchState, scorePlays, type Match } from "../lib/match";
   import { onMount } from "svelte";
 
   type PlayerSummary = {
@@ -32,27 +32,16 @@
   function summarizePlayers(matchState: Record<string, Match>): PlayerSummary[] {
     const rows: PlayerSummary[] = []
     for (const [key, { name, plays }] of Object.entries(matchState)) {
-      let pontos = 0
-      let seguido = 0
       let acertos = 0
       let time = 0
       for (const play of plays) {
         time += play.resposta.time
-        if (play.resposta.right) {
-          seguido++
-          acertos++
-        } else {
-          seguido = 0
-        }
-        const deltaPoints = Math.floor(
-          Math.abs((10 / Math.log10(play.resposta.time / 1000)) * seguido) * 10
-        )
-        pontos += deltaPoints
+        if (play.resposta.right) acertos++
       }
       rows.push({
         name,
         id: key,
-        score: pontos,
+        score: scorePlays(plays),
         acertos: plays.length ? acertos / plays.length : 0,
         time,
       })
