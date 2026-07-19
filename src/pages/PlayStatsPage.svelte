@@ -56,8 +56,11 @@
     const url = new URL(window.location.href)
     // searchParams.set URI-encodes, so base64 '+' survives the round-trip
     url.searchParams.set('state', encodeMatchState(state))
-    navigator.clipboard.writeText(url.toString())
-    alert("Copiado!")
+    // Same pattern as QuickMatch: do not alert success on clipboard denial
+    void navigator.clipboard.writeText(url.toString()).then(
+      () => alert("Copiado!"),
+      () => alert("Não foi possível copiar o link"),
+    )
   }
 
   function handleTryAgain() {

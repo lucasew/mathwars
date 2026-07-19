@@ -56,6 +56,36 @@ export function encodeMatchState(state: MatchState): string {
     return btoa(binary)
 }
 
+function isPlay(value: unknown): boolean {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        return false
+    }
+    const play = value as Record<string, unknown>
+    if (play.resposta === null || typeof play.resposta !== "object" || Array.isArray(play.resposta)) {
+        return false
+    }
+    const answer = play.resposta as Record<string, unknown>
+    return typeof answer.right === "boolean" && typeof answer.time === "number"
+}
+
+function isMatch(value: unknown): value is Match {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        return false
+    }
+    const m = value as Record<string, unknown>
+    if (typeof m.name !== "string") return false
+    if (!Array.isArray(m.plays) || !m.plays.every(isPlay)) return false
+    if (m.match === null || typeof m.match !== "object" || Array.isArray(m.match)) {
+        return false
+    }
+    const settings = m.match as Record<string, unknown>
+    return (
+        typeof settings.maxNumber === "number" &&
+        typeof settings.ops === "string" &&
+        typeof settings.plays === "number"
+    )
+}
+
 /** Inverse of encodeMatchState. Pass the value from URLSearchParams.get. */
 export function decodeMatchState(encoded: string): MatchState {
     const binary = atob(encoded)
@@ -63,5 +93,17 @@ export function decodeMatchState(encoded: string): MatchState {
     for (let i = 0; i < binary.length; i++) {
         bytes[i] = binary.charCodeAt(i)
     }
-    return JSON.parse(new TextDecoder().decode(bytes)) as MatchState
+    const parsed: unknown = JSON.parse(new TextDecoder().decode(bytes))
+    // Reject null / arrays / primitives so callers never Object.entries a non-map
+    if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
+        throw new Error("Invalid match state: expected object map")
+    }
+    const out: MatchState = {}
+    for (const [id, entry] of Object.entries(parsed as Record<string, unknown>)) {
+        if (!isMatch(entry)) {
+            throw new Error(`Invalid match state for player ${id}`)
+        }
+        out[id] = entry
+    }
+    return out
 }
