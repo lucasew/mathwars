@@ -41,17 +41,18 @@
       // cannot enqueue multiple match answers.
       if (problemSelected) return
       problemSelected = true
+      // play() rejects when interrupted or blocked; same pattern as intro music in App.svelte
       if (right) {
         if (successRiffRef) {
           successRiffRef.pause()
           successRiffRef.currentTime = 0
-          void successRiffRef.play()
+          void successRiffRef.play().catch(() => {})
         }
       } else {
         if (failRiffRef) {
           failRiffRef.pause()
           failRiffRef.currentTime = 0
-          void failRiffRef.play()
+          void failRiffRef.play().catch(() => {})
         }
       }
       const submissionTime = new Date();
