@@ -97,17 +97,22 @@ export function generateAlternatives(problem: Problem, amount = 4) {
     let i = 0;
     while (alternatives.size < amount) {
         const strat = alternativeStrategies[Math.floor(Math.random()*alternativeStrategies.length)]
-        const variatedAnswer = strat(problem)
+        // Mental math: operands/answers are integers; distractors must be whole numbers too
+        // (varying a/b for '/' otherwise yields floats like 1.222… on the choices).
+        const variatedAnswer = Math.round(strat(problem))
         i++
         if (i > 100) break
-        if (Math.abs(variatedAnswer - solution) < 0.1) {
+        if (!Number.isFinite(variatedAnswer) || variatedAnswer === solution) {
             continue
         }
         alternatives.add(variatedAnswer)
     }
     while (alternatives.size < amount) {
         i++
-        alternatives.add(getProblemAnswer(generateProblem({ max: 20 })))
+        const fallback = Math.round(getProblemAnswer(generateProblem({ max: 20 })))
+        if (Number.isFinite(fallback) && fallback !== solution) {
+            alternatives.add(fallback)
+        }
         if (i > 200) break
     }
     return [...alternatives]
