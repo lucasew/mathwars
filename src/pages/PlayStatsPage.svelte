@@ -52,12 +52,39 @@
 
   $: summary = summarizePlayers(state)
 
+  /**
+   * Clipboard API is secure-context-only (HTTPS / localhost). `vite --host`
+   * over http://LAN leaves navigator.clipboard undefined and a bare
+   * writeText call throws before the promise rejection handler runs.
+   */
+  function copyText(text: string): Promise<void> {
+    if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+      return navigator.clipboard.writeText(text)
+    }
+    return new Promise((resolve, reject) => {
+      try {
+        const ta = document.createElement('textarea')
+        ta.value = text
+        ta.setAttribute('readonly', '')
+        ta.style.position = 'fixed'
+        ta.style.left = '-9999px'
+        document.body.appendChild(ta)
+        ta.select()
+        const ok = document.execCommand('copy')
+        document.body.removeChild(ta)
+        if (ok) resolve()
+        else reject(new Error('copy failed'))
+      } catch (err) {
+        reject(err instanceof Error ? err : new Error('copy failed'))
+      }
+    })
+  }
+
   function handleCopyResultLink() {
     const url = new URL(window.location.href)
     // searchParams.set URI-encodes, so base64 '+' survives the round-trip
     url.searchParams.set('state', encodeMatchState(state))
-    // Same pattern as QuickMatch: do not alert success on clipboard denial
-    void navigator.clipboard.writeText(url.toString()).then(
+    void copyText(url.toString()).then(
       () => alert("Copiado!"),
       () => alert("Não foi possível copiar o link"),
     )
