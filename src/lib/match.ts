@@ -21,10 +21,12 @@ export type MatchState = Record<string, Match>
 /**
  * Points for one answered play given the current correct-answer streak.
  * Faster answers score higher; wrong answers (streak 0) score 0.
- * Time is clamped so zero/near-zero ms cannot explode the score.
+ * Non-finite or negative times score 0 (corrupt / crafted state).
+ * Sub-50ms times are clamped so near-zero ms cannot explode the score.
  */
 export function pointsForPlay(timeMs: number, streak: number): number {
     if (streak <= 0) return 0
+    if (!Number.isFinite(timeMs) || timeMs < 0) return 0
     // 50ms floor ≈ one frame pair; avoids /0 and absurd sub-ms scores
     const ms = Math.max(timeMs, 50)
     // ~200 * streak at 50ms, ~10 * streak at 1s, ~2 * streak at 5s
@@ -56,16 +58,42 @@ export function encodeMatchState(state: MatchState): string {
     return btoa(binary)
 }
 
+const PROBLEM_OPS = new Set(["+", "-", "*", "/"])
+
+function isProblem(value: unknown): boolean {
+    if (value === null || typeof value !== "object" || Array.isArray(value)) {
+        return false
+    }
+    const problem = value as Record<string, unknown>
+    return (
+        typeof problem.a === "number" &&
+        Number.isFinite(problem.a) &&
+        typeof problem.b === "number" &&
+        Number.isFinite(problem.b) &&
+        typeof problem.op === "string" &&
+        PROBLEM_OPS.has(problem.op)
+    )
+}
+
 function isPlay(value: unknown): boolean {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
         return false
     }
     const play = value as Record<string, unknown>
+    if (!isProblem(play.pergunta)) {
+        return false
+    }
     if (play.resposta === null || typeof play.resposta !== "object" || Array.isArray(play.resposta)) {
         return false
     }
     const answer = play.resposta as Record<string, unknown>
-    return typeof answer.right === "boolean" && typeof answer.time === "number"
+    // Reject NaN/±Infinity/negative times so scores stay finite and ungameable
+    return (
+        typeof answer.right === "boolean" &&
+        typeof answer.time === "number" &&
+        Number.isFinite(answer.time) &&
+        answer.time >= 0
+    )
 }
 
 function isMatch(value: unknown): value is Match {
@@ -81,8 +109,10 @@ function isMatch(value: unknown): value is Match {
     const settings = m.match as Record<string, unknown>
     return (
         typeof settings.maxNumber === "number" &&
+        Number.isFinite(settings.maxNumber) &&
         typeof settings.ops === "string" &&
-        typeof settings.plays === "number"
+        typeof settings.plays === "number" &&
+        Number.isFinite(settings.plays)
     )
 }
 
