@@ -82,14 +82,27 @@ function isProblem(value: unknown): boolean {
     }
     const problem = value as Record<string, unknown>
     // Mental math: operands are whole safe integers (see problemgen integer division).
-    return (
-        typeof problem.a === "number" &&
-        Number.isSafeInteger(problem.a) &&
-        typeof problem.b === "number" &&
-        Number.isSafeInteger(problem.b) &&
-        typeof problem.op === "string" &&
-        PROBLEM_OPS.has(problem.op)
-    )
+    if (
+        typeof problem.a !== "number" ||
+        !Number.isSafeInteger(problem.a) ||
+        typeof problem.b !== "number" ||
+        !Number.isSafeInteger(problem.b) ||
+        typeof problem.op !== "string" ||
+        !PROBLEM_OPS.has(problem.op)
+    ) {
+        return false
+    }
+    // Crafted share links can claim `/` with b=0 or a non-integer quotient;
+    // generator never emits those (see problemgen `/` branch).
+    if (problem.op === "/") {
+        if (problem.b === 0) {
+            return false
+        }
+        if (problem.a % problem.b !== 0) {
+            return false
+        }
+    }
+    return true
 }
 
 function isPlay(value: unknown): boolean {
