@@ -132,7 +132,13 @@ function isMatch(value: unknown): value is Match {
         return false
     }
     const m = value as Record<string, unknown>
-    if (typeof m.name !== "string" || m.name.length < 1 || m.name.length > MAX_NAME_LENGTH) {
+    // Reject blank / whitespace-only names (UI trims; crafted links must not blank the board)
+    if (
+        typeof m.name !== "string" ||
+        m.name.length < 1 ||
+        m.name.length > MAX_NAME_LENGTH ||
+        m.name.trim().length < 1
+    ) {
         return false
     }
     // At least one play for a result; cap length to match QuickMatch MAX_PLAYS
@@ -175,7 +181,7 @@ export function decodeMatchState(encoded: string): MatchState {
     }
     const out: MatchState = {}
     for (const [id, entry] of entries) {
-        if (id.length < 1 || id.length > MAX_PLAYER_ID_LENGTH) {
+        if (id.length < 1 || id.length > MAX_PLAYER_ID_LENGTH || id.trim().length < 1) {
             throw new Error(`Invalid match state for player ${id}`)
         }
         if (!isMatch(entry)) {
