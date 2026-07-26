@@ -60,16 +60,33 @@ export function encodeMatchState(state: MatchState): string {
 
 const PROBLEM_OPS = new Set(["+", "-", "*", "/"])
 
+// Align with QuickMatch form clamps so shared links cannot widen settings.
+const MAX_MAX_NUMBER = 999
+const MAX_PLAYS = 200
+const MAX_PLAYERS = 32
+const MAX_NAME_LENGTH = 64
+const MAX_OPS_LENGTH = 16
+const MAX_PLAYER_ID_LENGTH = 64
+/** ~1h per answer; rejects absurd crafted times that inflate totals. */
+const MAX_ANSWER_TIME_MS = 3_600_000
+/** Base64 budget before atob; full 200-play single-player state is far smaller. */
+const MAX_ENCODED_LENGTH = 100_000
+
+function isIntInRange(value: unknown, min: number, max: number): value is number {
+    return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max
+}
+
 function isProblem(value: unknown): boolean {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
         return false
     }
     const problem = value as Record<string, unknown>
+    // Mental math: operands are whole safe integers (see problemgen integer division).
     return (
         typeof problem.a === "number" &&
-        Number.isFinite(problem.a) &&
+        Number.isSafeInteger(problem.a) &&
         typeof problem.b === "number" &&
-        Number.isFinite(problem.b) &&
+        Number.isSafeInteger(problem.b) &&
         typeof problem.op === "string" &&
         PROBLEM_OPS.has(problem.op)
     )
@@ -87,12 +104,13 @@ function isPlay(value: unknown): boolean {
         return false
     }
     const answer = play.resposta as Record<string, unknown>
-    // Reject NaN/±Infinity/negative times so scores stay finite and ungameable
+    // Reject NaN/±Infinity/negative/huge times so scores stay finite and ungameable
     return (
         typeof answer.right === "boolean" &&
         typeof answer.time === "number" &&
         Number.isFinite(answer.time) &&
-        answer.time >= 0
+        answer.time >= 0 &&
+        answer.time <= MAX_ANSWER_TIME_MS
     )
 }
 
@@ -101,23 +119,33 @@ function isMatch(value: unknown): value is Match {
         return false
     }
     const m = value as Record<string, unknown>
-    if (typeof m.name !== "string") return false
-    if (!Array.isArray(m.plays) || !m.plays.every(isPlay)) return false
+    if (typeof m.name !== "string" || m.name.length < 1 || m.name.length > MAX_NAME_LENGTH) {
+        return false
+    }
+    // At least one play for a result; cap length to match QuickMatch MAX_PLAYS
+    if (!Array.isArray(m.plays) || m.plays.length < 1 || m.plays.length > MAX_PLAYS) {
+        return false
+    }
+    if (!m.plays.every(isPlay)) {
+        return false
+    }
     if (m.match === null || typeof m.match !== "object" || Array.isArray(m.match)) {
         return false
     }
     const settings = m.match as Record<string, unknown>
     return (
-        typeof settings.maxNumber === "number" &&
-        Number.isFinite(settings.maxNumber) &&
+        isIntInRange(settings.maxNumber, 1, MAX_MAX_NUMBER) &&
         typeof settings.ops === "string" &&
-        typeof settings.plays === "number" &&
-        Number.isFinite(settings.plays)
+        settings.ops.length <= MAX_OPS_LENGTH &&
+        isIntInRange(settings.plays, 1, MAX_PLAYS)
     )
 }
 
 /** Inverse of encodeMatchState. Pass the value from URLSearchParams.get. */
 export function decodeMatchState(encoded: string): MatchState {
+    if (typeof encoded !== "string" || encoded.length === 0 || encoded.length > MAX_ENCODED_LENGTH) {
+        throw new Error("Invalid match state: encoded payload size")
+    }
     const binary = atob(encoded)
     const bytes = new Uint8Array(binary.length)
     for (let i = 0; i < binary.length; i++) {
@@ -128,8 +156,15 @@ export function decodeMatchState(encoded: string): MatchState {
     if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) {
         throw new Error("Invalid match state: expected object map")
     }
+    const entries = Object.entries(parsed as Record<string, unknown>)
+    if (entries.length < 1 || entries.length > MAX_PLAYERS) {
+        throw new Error("Invalid match state: player count")
+    }
     const out: MatchState = {}
-    for (const [id, entry] of Object.entries(parsed as Record<string, unknown>)) {
+    for (const [id, entry] of entries) {
+        if (id.length < 1 || id.length > MAX_PLAYER_ID_LENGTH) {
+            throw new Error(`Invalid match state for player ${id}`)
+        }
         if (!isMatch(entry)) {
             throw new Error(`Invalid match state for player ${id}`)
         }
