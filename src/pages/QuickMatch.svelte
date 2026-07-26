@@ -89,6 +89,34 @@
         problem = nextProblem()
     }
 
+    /**
+     * Clipboard API is secure-context-only (HTTPS / localhost). `vite --host`
+     * over http://LAN leaves navigator.clipboard undefined and a bare
+     * writeText call throws before the promise rejection handler runs.
+     */
+    function copyText(text: string): Promise<void> {
+        if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText) {
+            return navigator.clipboard.writeText(text)
+        }
+        return new Promise((resolve, reject) => {
+            try {
+                const ta = document.createElement('textarea')
+                ta.value = text
+                ta.setAttribute('readonly', '')
+                ta.style.position = 'fixed'
+                ta.style.left = '-9999px'
+                document.body.appendChild(ta)
+                ta.select()
+                const ok = document.execCommand('copy')
+                document.body.removeChild(ta)
+                if (ok) resolve()
+                else reject(new Error('copy failed'))
+            } catch (err) {
+                reject(err instanceof Error ? err : new Error('copy failed'))
+            }
+        })
+    }
+
     function handleCopyMatchLink(e: MouseEvent) {
         e.preventDefault()
         const max = normalizePositiveInt(maxNumber, DEFAULT_MAX_NUMBER, MAX_MAX_NUMBER)
@@ -99,7 +127,7 @@
         url.searchParams.set('maxNumber', String(max))
         url.searchParams.set('ops', opsTxt)
         url.searchParams.set('plays', String(plays))
-        void navigator.clipboard.writeText(url.toString()).then(
+        void copyText(url.toString()).then(
             () => alert('Copiado!'),
             () => alert('Não foi possível copiar o link'),
         )
