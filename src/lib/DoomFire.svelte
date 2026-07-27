@@ -18,6 +18,8 @@
 
     function scheduleNextFrame() {
         if (stop) return;
+        // Hidden tab: freeze sim (no setTimeout/rAF churn) until visibility resumes.
+        if (typeof document !== 'undefined' && document.hidden) return;
         if (renderTimeout !== undefined) {
             clearTimeout(renderTimeout);
         }
@@ -54,11 +56,25 @@
                 }
             }, 1)
         }
+        const handleVisibility = () => {
+            if (stop) return;
+            if (document.hidden) {
+                // Drop pending frame; leave last painted canvas as-is.
+                if (renderTimeout !== undefined) {
+                    clearTimeout(renderTimeout);
+                    renderTimeout = undefined;
+                }
+            } else {
+                scheduleNextFrame();
+            }
+        }
         const resizeObserver = new ResizeObserver(handleResize)
         handleWaitElement()
+        document.addEventListener('visibilitychange', handleVisibility)
         requestAnimationFrame(handle_render)
         return () => {
             stop = true;
+            document.removeEventListener('visibilitychange', handleVisibility)
             if (waitElementTimeout !== undefined) {
                 clearTimeout(waitElementTimeout);
                 waitElementTimeout = undefined;
@@ -77,6 +93,10 @@
     let fireArray = new Float32Array(0)
     function handle_render() {
         if (stop) {
+            return;
+        }
+        // Queued rAF after hide: do not advance or reschedule until visible again.
+        if (typeof document !== 'undefined' && document.hidden) {
             return;
         }
         if (!containerRef || !refCanvas) {
