@@ -2,6 +2,7 @@
     import ProblemQuestion from '../lib/ProblemQuestion.svelte';
     import {generateProblem, type Problem} from '../lib/problemgen'
     import { onMount } from 'svelte';
+    import { copyText } from '../lib/clipboard';
     import { idUsuario, usernameStore } from '../lib/user';
     import { handleJump } from '../stores/location';
     import { encodeMatchState, type Match } from '../lib/match';
@@ -99,7 +100,7 @@
         url.searchParams.set('maxNumber', String(max))
         url.searchParams.set('ops', opsTxt)
         url.searchParams.set('plays', String(plays))
-        void navigator.clipboard.writeText(url.toString()).then(
+        void copyText(url.toString()).then(
             () => alert('Copiado!'),
             () => alert('Não foi possível copiar o link'),
         )
