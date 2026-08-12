@@ -1,5 +1,5 @@
 <script lang='ts'>
-  import { copyText } from "../lib/clipboard";
+  import { copyTextWithAlert } from "../lib/clipboard";
   import { decodeMatchState, encodeMatchState, scorePlays, type Match } from "../lib/match";
   import { onMount } from "svelte";
 
@@ -57,10 +57,7 @@
     const url = new URL(window.location.href)
     // searchParams.set URI-encodes, so base64 '+' survives the round-trip
     url.searchParams.set('state', encodeMatchState(state))
-    void copyText(url.toString()).then(
-      () => alert("Copiado!"),
-      () => alert("Não foi possível copiar o link"),
-    )
+    copyTextWithAlert(url.toString())
   }
 
   function handleTryAgain() {

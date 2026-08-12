@@ -28,3 +28,14 @@ export function copyText(text: string): Promise<void> {
         }
     })
 }
+
+/**
+ * Copy text and show the shared success / failure alerts used by share-link UI.
+ * Call sites should not duplicate the alert strings.
+ */
+export function copyTextWithAlert(text: string): void {
+    void copyText(text).then(
+        () => alert('Copiado!'),
+        () => alert('Não foi possível copiar o link'),
+    )
+}
