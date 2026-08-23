@@ -1,4 +1,5 @@
 <script lang="ts">
+    import { finiteNumberOr } from '../lib/finiteNumber';
     import { decay, wind } from '../stores/doomfire';
 
     /** Defaults match src/stores/doomfire.ts */
@@ -14,14 +15,13 @@
      * NaN cell updates; huge magnitudes thrash the sim.
      */
     function normalizeWind(value: unknown): number {
-        const n = typeof value === 'number' ? value : Number(value)
-        if (!Number.isFinite(n)) return DEFAULT_WIND
+        const n = finiteNumberOr(value, DEFAULT_WIND)
         return Math.min(MAX_ABS_WIND, Math.max(-MAX_ABS_WIND, n))
     }
 
     function normalizeDecay(value: unknown): number {
-        const n = typeof value === 'number' ? value : Number(value)
-        if (!Number.isFinite(n) || n < 0) return DEFAULT_DECAY
+        const n = finiteNumberOr(value, DEFAULT_DECAY)
+        if (n < 0) return DEFAULT_DECAY
         return Math.min(MAX_DECAY, n)
     }
 
