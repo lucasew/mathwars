@@ -3,6 +3,7 @@
     import {generateProblem, type Problem} from '../lib/problemgen'
     import { onMount } from 'svelte';
     import { copyTextWithAlert } from '../lib/clipboard';
+    import { finiteNumberOr } from '../lib/finiteNumber';
     import { idUsuario, usernameStore } from '../lib/user';
     import { handleJump } from '../stores/location';
     import { encodeMatchState, type Match } from '../lib/match';
@@ -14,8 +15,8 @@
 
     /** Positive integer in [1, max]; non-finite / <1 → fallback. Stops NaN operands from max≤0. */
     function normalizePositiveInt(value: unknown, fallback: number, max: number): number {
-        const n = typeof value === 'number' ? value : Number(value)
-        if (!Number.isFinite(n) || n < 1) return fallback
+        const n = finiteNumberOr(value, fallback)
+        if (n < 1) return fallback
         return Math.min(Math.floor(n), max)
     }
 
