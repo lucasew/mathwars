@@ -18,10 +18,12 @@ let problem: Problem = genProblem();
 </svelte:head>
 
 <div>
+{#key `${problem.a}|${problem.op}|${problem.b}`}
 <ProblemQuestion
     problem={problem}
     on:answer={() => problem = genProblem()}
 />
+{/key}
 
 <button class="mathwars-button" on:click={() => problem = genProblem()}>Gerar outro problema</button>
 
