@@ -1,10 +1,7 @@
 <script lang="ts">
     import { finiteNumberOr } from '../lib/finiteNumber';
-    import { decay, wind } from '../stores/doomfire';
+    import { DEFAULT_DECAY, DEFAULT_WIND, decay, wind } from '../stores/doomfire';
 
-    /** Defaults match src/stores/doomfire.ts */
-    const DEFAULT_WIND = 1.5
-    const DEFAULT_DECAY = 256
     /** Wide enough for the toy page; keeps the fire sim finite. */
     const MAX_ABS_WIND = 50
     const MAX_DECAY = 10_000
