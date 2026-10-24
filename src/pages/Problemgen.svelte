@@ -9,7 +9,9 @@ function genProblem() {
 }
 
 let problem: Problem = genProblem();
-
+// Impure RNG must not run inside the template: each re-render would reshuffle
+// the listed alternatives for the same problem (see ProblemQuestion $: pattern).
+$: alternatives = generateAlternatives(problem);
 
 </script>
 
@@ -25,7 +27,7 @@ let problem: Problem = genProblem();
 
 <p>Resposta: {getProblemAnswer(problem)}</p>
 
-{#each generateAlternatives(problem) as alternative}
+{#each alternatives as alternative}
     <p>Alternativa: {alternative}</p>
 {/each}
 
