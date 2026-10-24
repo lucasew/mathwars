@@ -1,6 +1,7 @@
 <script lang='ts'>
   import { copyTextWithAlert } from "../lib/clipboard";
   import { decodeMatchState, encodeMatchState, scorePlays, type Match } from "../lib/match";
+  import { setQuickMatchQuery } from "../lib/quickMatchQuery";
   import { onMount } from "svelte";
 
   type PlayerSummary = {
@@ -66,9 +67,7 @@
     const { maxNumber, ops, plays } = first.match
     const url = new URL(window.location.href)
     url.pathname = '/play/quick'
-    url.searchParams.set('maxNumber', String(maxNumber))
-    url.searchParams.set('ops', String(ops))
-    url.searchParams.set('plays', String(plays))
+    setQuickMatchQuery(url, { maxNumber, ops, plays })
     url.searchParams.delete('state')
     history.replaceState({}, '', url.toString())
   }

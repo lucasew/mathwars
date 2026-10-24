@@ -7,6 +7,7 @@
     import { idUsuario, usernameStore } from '../lib/user';
     import { handleJump } from '../stores/location';
     import { encodeMatchState, type Match } from '../lib/match';
+    import { quickMatchQuery, setQuickMatchQuery } from '../lib/quickMatchQuery';
 
     const DEFAULT_MAX_NUMBER = 20
     const DEFAULT_PLAYS = 10
@@ -33,19 +34,19 @@
 
     onMount(() => {
         const url = new URL(window.location.href)
-        if (url.searchParams.has('maxNumber')) {
+        if (url.searchParams.has(quickMatchQuery.maxNumber)) {
             maxNumber = normalizePositiveInt(
-                parseInt(url.searchParams.get('maxNumber') || '', 10),
+                parseInt(url.searchParams.get(quickMatchQuery.maxNumber) || '', 10),
                 DEFAULT_MAX_NUMBER,
                 MAX_MAX_NUMBER,
             )
         }
-        if (url.searchParams.has('ops')) {
-            opsTxt = (url.searchParams.get('ops') || "").replace(' ', '+')
+        if (url.searchParams.has(quickMatchQuery.ops)) {
+            opsTxt = (url.searchParams.get(quickMatchQuery.ops) || "").replace(' ', '+')
         }
-        if (url.searchParams.has('plays')) {
+        if (url.searchParams.has(quickMatchQuery.plays)) {
             jogadas = normalizePositiveInt(
-                parseInt(url.searchParams.get('plays') || '', 10),
+                parseInt(url.searchParams.get(quickMatchQuery.plays) || '', 10),
                 DEFAULT_PLAYS,
                 MAX_PLAYS,
             )
@@ -98,9 +99,7 @@
         maxNumber = max
         jogadas = plays
         let url = new URL(window.location.href)
-        url.searchParams.set('maxNumber', String(max))
-        url.searchParams.set('ops', opsTxt)
-        url.searchParams.set('plays', String(plays))
+        setQuickMatchQuery(url, { maxNumber: max, ops: opsTxt, plays })
         copyTextWithAlert(url.toString())
     }
 </script>
