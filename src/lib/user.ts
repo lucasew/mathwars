@@ -64,40 +64,61 @@ export const idUsuario: string = ensureClientId();
 
 export const usernameStore = writable("");
 
-const storedName = readStorage("mathwars_name");
+/**
+ * Align with match decode (src/lib/match.ts MAX_NAME_LENGTH). Longer names
+ * encode fine but shared result links fail isMatch and look "invalid".
+ */
+const MAX_NAME_LENGTH = 64
+
+/** Trim and cap length. Empty / whitespace-only → null (missing). */
+function normalizeDisplayName(raw: string | null | undefined): string | null {
+    if (raw == null) return null
+    const name = raw.trim().slice(0, MAX_NAME_LENGTH)
+    return name.length > 0 ? name : null
+}
+
+function applyDisplayName(name: string): void {
+    writeStorage("mathwars_name", name)
+    usernameStore.set(name)
+}
+
+const storedName = normalizeDisplayName(readStorage("mathwars_name"))
 if (storedName === null) {
-    changeName();
+    changeName()
 } else {
-    usernameStore.set(storedName);
+    // Rewrite storage when corrupt (padding / oversize) so future loads stay clean.
+    if (storedName !== readStorage("mathwars_name")) {
+        writeStorage("mathwars_name", storedName)
+    }
+    usernameStore.set(storedName)
 }
 
 /**
  * Prompt for a display name. Cancel keeps the previous name when one exists;
  * on first visit with cancel, falls back to "Anônimo" so the UI does not hang.
  * Prefers the live store so a session-only name (storage blocked) is not wiped.
+ * Names are capped so match result shares stay decodable.
  */
 export function changeName() {
     const previous =
-        get(usernameStore).trim() || readStorage("mathwars_name");
+        normalizeDisplayName(get(usernameStore)) ||
+        normalizeDisplayName(readStorage("mathwars_name"))
 
     while (true) {
-        const raw = prompt("Digite seu nome para entrar em uma partida");
+        const raw = prompt("Digite seu nome para entrar em uma partida")
         if (raw === null) {
             if (previous) {
-                usernameStore.set(previous);
-                return;
+                applyDisplayName(previous)
+                return
             }
-            const fallback = "Anônimo";
-            writeStorage("mathwars_name", fallback);
-            usernameStore.set(fallback);
-            return;
+            applyDisplayName("Anônimo")
+            return
         }
 
-        const name = raw.trim();
+        const name = normalizeDisplayName(raw)
         if (name) {
-            writeStorage("mathwars_name", name);
-            usernameStore.set(name);
-            return;
+            applyDisplayName(name)
+            return
         }
         // Empty input: re-prompt
     }
