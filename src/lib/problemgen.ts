@@ -4,11 +4,27 @@ export type Problem = {
     b: number
 }
 
+// Align with QuickMatch / match decode maxNumber ceiling so shared generators
+// cannot emit operands past what decode will accept on a finished match.
+const MAX_MAX_NUMBER = 999
+
+/**
+ * Positive integer in [1, MAX_MAX_NUMBER]. Non-finite or below 1 (empty number
+ * inputs, bad callers) would otherwise yield NaN operands via
+ * `1 + Math.floor(Math.random() * max)`.
+ */
+function normalizeMax(value: unknown): number {
+    const n = typeof value === 'number' ? value : Number(value)
+    if (!Number.isFinite(n) || n < 1) return 1
+    return Math.min(Math.floor(n), MAX_MAX_NUMBER)
+}
+
 export function generateProblem(options: {
     max: number,
     negativeProb?: number
     ops?: Set<Problem['op']>
 }): Problem {
+    const max = normalizeMax(options.max)
     let usedOps: Set<Problem['op']> = new Set(['+', '-', '*', '/'])
     if (options.ops && options.ops.size > 0) {
         usedOps = options.ops
@@ -22,13 +38,13 @@ export function generateProblem(options: {
     if (op === '/') {
         // Contas de cabeça: keep both operands in 1..max and force an integer quotient.
         // Pick divisor b, then quotient q so dividend a = b * q stays ≤ max.
-        b = 1 + Math.floor(Math.random() * options.max)
-        const maxQuotient = Math.max(1, Math.floor(options.max / b))
+        b = 1 + Math.floor(Math.random() * max)
+        const maxQuotient = Math.max(1, Math.floor(max / b))
         const q = 1 + Math.floor(Math.random() * maxQuotient)
         a = b * q
     } else {
-        a = 1 + Math.floor(Math.random() * options.max)
-        b = 1 + Math.floor(Math.random() * options.max)
+        a = 1 + Math.floor(Math.random() * max)
+        b = 1 + Math.floor(Math.random() * max)
     }
 
     if (options.negativeProb) {
