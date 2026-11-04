@@ -76,17 +76,33 @@ function isIntInRange(value: unknown, min: number, max: number): value is number
     return typeof value === "number" && Number.isInteger(value) && value >= min && value <= max
 }
 
+/** Ops field only allows the four generator ops (and empty = all). */
+function isValidOpsString(ops: string): boolean {
+    if (ops.length > MAX_OPS_LENGTH) {
+        return false
+    }
+    for (let i = 0; i < ops.length; i++) {
+        if (!PROBLEM_OPS.has(ops[i]!)) {
+            return false
+        }
+    }
+    return true
+}
+
 function isProblem(value: unknown): boolean {
     if (value === null || typeof value !== "object" || Array.isArray(value)) {
         return false
     }
     const problem = value as Record<string, unknown>
-    // Mental math: operands are whole safe integers (see problemgen integer division).
+    // Mental math: whole safe integers within the game maxNumber range
+    // (problemgen / QuickMatch never emit |operand| > MAX_MAX_NUMBER).
     if (
         typeof problem.a !== "number" ||
         !Number.isSafeInteger(problem.a) ||
         typeof problem.b !== "number" ||
         !Number.isSafeInteger(problem.b) ||
+        Math.abs(problem.a) > MAX_MAX_NUMBER ||
+        Math.abs(problem.b) > MAX_MAX_NUMBER ||
         typeof problem.op !== "string" ||
         !PROBLEM_OPS.has(problem.op)
     ) {
@@ -155,7 +171,7 @@ function isMatch(value: unknown): value is Match {
     return (
         isIntInRange(settings.maxNumber, 1, MAX_MAX_NUMBER) &&
         typeof settings.ops === "string" &&
-        settings.ops.length <= MAX_OPS_LENGTH &&
+        isValidOpsString(settings.ops) &&
         isIntInRange(settings.plays, 1, MAX_PLAYS)
     )
 }
